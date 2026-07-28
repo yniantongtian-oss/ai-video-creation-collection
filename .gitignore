@@ -1,6 +1,9 @@
 # Generated project workspaces
 projects/
 
+# Generated workflow files
+workflows/wan22_long_video_3shot.json
+
 # Python
 __pycache__/
 *.py[cod]

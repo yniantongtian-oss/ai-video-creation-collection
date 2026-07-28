@@ -1,6 +1,6 @@
 # 贡献指南
 
-感谢补充 AI 视频创作相关的模型、框架、工具和 Skill。仓库目标是保持**可信、可执行、可维护**，而不是收录数量最多。
+感谢补充 AI 视频创作相关的模型、框架、工具、工作流和 Skill。仓库目标是保持**可信、可执行、可维护**，而不是收录数量最多。
 
 ## 收录标准
 
@@ -37,7 +37,7 @@
 }
 ```
 
-允许的分类由 `scripts/validate_catalog.py` 中的 `ALLOWED_CATEGORIES` 定义。需要新增分类时，应同时说明理由并修改校验脚本。
+允许分类由 `scripts/validate_catalog.py` 中的 `ALLOWED_CATEGORIES` 定义。新增分类时，应同时说明理由并修改校验脚本。
 
 ## 描述规范
 
@@ -47,6 +47,27 @@
 - 区分官方项目、社区节点、社区量化和第三方工作流。
 - 许可证不确定时写 `See upstream LICENSE and model terms`，不要猜测。
 - URL 指向仓库根目录，不使用搜索结果、分支页面或下载跳转地址。
+
+## 修改 ComfyUI 工作流
+
+工作流位于 `workflows/`。修改时必须遵守：
+
+- 优先使用 ComfyUI 核心节点；新增第三方节点时必须记录仓库、版本和安装方式。
+- 模型文件名、目录和下载来源必须同步更新 `workflows/models.json`。
+- 不把结构校验写成真实 GPU 推理成功。
+- 改动采样步数时，应同时检查高噪声和低噪声阶段的分界、加噪和剩余噪声设置。
+- 修改帧数、fps 或拼接方式时，同步更新 `workflows/README.md` 中的默认时长。
+- 三镜头工作流的标准 JSON 由压缩源生成。需要更新时，应同时替换 `wan22_long_video_3shot.json.gz`，并确保展开后的 JSON 通过校验。
+- 不提交模型权重、生成视频、个人素材或密钥。
+
+工作流校验必须检查：
+
+- 节点 ID 和连接 ID 唯一。
+- 连接的源节点、目标节点和槽位存在。
+- 节点输入输出对连接 ID 的反向引用一致。
+- `last_node_id`、`last_link_id` 和 workflow version 正确。
+- `CreateVideo`、`SaveVideo` 以及任务所需节点存在。
+- 工作流引用的模型全部出现在 `models.json`。
 
 ## 修改 Skill
 
@@ -63,7 +84,9 @@
 提交前运行：
 
 ```bash
+python scripts/materialize_workflows.py
 python scripts/validate_catalog.py
+python scripts/validate_workflows.py
 python -m py_compile scripts/*.py
 
 # 可选：建立一个临时项目，确认脚手架正常
@@ -83,9 +106,10 @@ python scripts/scaffold_project.py \
 PR 描述至少包括：
 
 - 修改目的。
-- 新增或删除的项目。
+- 新增或删除的项目、工作流或模型引用。
 - 官方来源和许可证核验结果。
-- 运行过的检查。
+- 运行过的检查及结果。
+- 是否进行过真实 GPU 推理；未进行时必须明确说明。
 - 仍然存在的不确定项或后续工作。
 
 一个 PR 尽量只处理一个主题，避免把资源更新、Skill 重写和无关格式化混在一起。
