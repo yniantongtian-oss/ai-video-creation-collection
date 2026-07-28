@@ -1,0 +1,33 @@
+# Generated project workspaces
+projects/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Local model and output data
+models/
+checkpoints/
+outputs/
+*.ckpt
+*.safetensors
+*.gguf
+*.pt
+*.pth
+*.mp4
+*.mov
+*.mkv
+*.webm
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+
+# Editors and operating systems
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

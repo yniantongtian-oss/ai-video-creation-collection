@@ -1,0 +1,45 @@
+name: Validate repository
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.10"
+
+      - name: Validate catalog
+        run: python scripts/validate_catalog.py
+
+      - name: Compile Python scripts
+        run: python -m py_compile scripts/*.py
+
+      - name: Smoke-test project scaffolder
+        run: |
+          python scripts/scaffold_project.py \
+            --name "ci-smoke-test" \
+            --output "$RUNNER_TEMP/ai-video-creation-test" \
+            --duration 7 \
+            --shot-length 3 \
+            --aspect-ratio 16:9 \
+            --fps 24 \
+            --mode mixed
+          test -f "$RUNNER_TEMP/ai-video-creation-test/ci-smoke-test/brief.md"
+          test -f "$RUNNER_TEMP/ai-video-creation-test/ci-smoke-test/manifest.json"
+          test -f "$RUNNER_TEMP/ai-video-creation-test/ci-smoke-test/prompts.md"
+          test -f "$RUNNER_TEMP/ai-video-creation-test/ci-smoke-test/shots.csv"
+          python -m json.tool "$RUNNER_TEMP/ai-video-creation-test/ci-smoke-test/manifest.json" >/dev/null
