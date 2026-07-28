@@ -1,91 +1,187 @@
 ---
 name: ai-video-creation
-description: Handle local open-source AI video generation and creation workflows using ComfyUI and models like LTX-Video, Wan 2.2, HunyuanVideo, CogVideoX, Mochi. Trigger on requests for AI video creation, text-to-video, image-to-video, long video extension, ComfyUI video pipelines, VRAM optimization for 16GB GPUs, model recommendations, or open-source video gen libraries. Focus on practical local setups, quantization, splicing, and scalable production.
+description: 将 AI 视频创作需求转化为可执行的本地或开源工作流。适用于文生视频、图生视频、视频续写、视频重绘、多镜头短片、角色一致性、ComfyUI 工作流、模型选型、显存优化、镜头表、提示词包和故障排查。触发后先明确任务、素材、交付规格、硬件与授权要求，再选择候选技术路线；不得虚构模型版本、仓库、节点、显存占用、生成速度或商业许可。
+metadata:
+  version: 1.0.0
+  language: zh-CN
 ---
 
-# AI Video Creation
+# AI Video Creation Skill
 
-## Overview
+把用户的创意转换为 **可执行、可复现、可检查** 的 AI 视频制作方案。优先使用官方开源仓库与用户已有环境；无法确认的信息必须标为待核验，不得猜测。
 
-Specialize in open-source AI video generation pipelines optimized for consumer GPUs (especially 16GB VRAM like RTX 5060). Cover model selection, ComfyUI workflows, quantization (GGUF/FP8/Q4/Q5), long-form extension/splicing techniques, and production scaling.
+## 触发范围
 
-## Core Stack (2026 Recommended)
+在用户提出以下需求时使用本 Skill：
 
-Prioritize these for local use:
+- 文生视频（T2V）、图生视频（I2V）、视频生视频（V2V）。
+- 视频续写、首尾帧控制、关键帧驱动、角色或产品一致性。
+- 多镜头短片、广告、剧情片段、科普视频、社交媒体视频。
+- ComfyUI 视频工作流、Diffusers 脚本、本地部署和显存优化。
+- AI 视频模型、开源库、节点、工作流或技术路线推荐。
+- OOM、缺少节点、模型路径、VAE、dtype、帧率、闪烁等故障排查。
 
-1. **ComfyUI** (mandatory frontend)
-   - Repo: https://github.com/comfyanonymous/ComfyUI
-   - Use ComfyUI Manager for custom nodes.
-   - Video tools: native CreateVideo / LoadVideo / VideoSlice nodes + community packs.
+不把本 Skill 用于未经授权的人脸冒用、欺骗性深度伪造、违法内容或规避平台安全机制。
 
-2. **LTX-Video / LTX 2.3 / LTX Director 2.0** (Lightricks) — best for speed + 16GB VRAM
-   - Official: https://github.com/Lightricks/LTX-Video
-   - ComfyUI nodes: https://github.com/Lightricks/ComfyUI-LTXVideo
-   - Strengths: Real-time capable, native audio in later versions, long clips (up to 30-60s with extension), IC-LoRA for consistency, Retake Mode.
-   - VRAM: 2B distilled ~8-12GB, 13B/22B with FP8/quant ~16GB usable.
-   - Desktop app alternative: LTX-Desktop.
+## 工作原则
 
-3. **Wan 2.2** (Alibaba) — highest open quality + fully Apache 2.0
-   - Repo: https://github.com/Wan-Video/Wan2.2
-   - Models: T2V-A14B, I2V-A14B, TI2V-5B (efficient hybrid).
-   - ComfyUI: Kijai conversions + native nodes preferred. GGUF versions (City96) for lower VRAM.
-   - Strengths: Strong motion, faces, multilingual (excellent Chinese), MoE architecture.
-   - Note: Later Wan 2.5+ are closed/API-only. Stick to 2.2 for open weights.
+1. **先定义交付物，再选模型。** 不根据项目热度直接推荐。
+2. **官方来源优先。** 具体版本、安装命令和许可证必须以当前上游文档为准。
+3. **不把估算写成事实。** 显存、速度、最长时长和分辨率都受模型、量化、节点、驱动和工作流影响。
+4. **先最小验证。** 先生成 2–5 秒、较低分辨率的样片，再扩大规模。
+5. **长视频拆镜头。** 默认采用镜头表、关键帧、短片段生成、剪辑与音频后期，而不是一次生成完整长片。
+6. **交付必须可复现。** 记录模型、工作流版本、种子、分辨率、帧率、提示词、输入素材和后处理步骤。
+7. **商业使用先审许可。** 仓库许可证、代码许可证、模型权重许可证和输出使用条款可能不同。
 
-4. **HunyuanVideo / HunyuanVideo-1.5** (Tencent)
-   - Original: https://github.com/Tencent-Hunyuan/HunyuanVideo
-   - 1.5 (lighter 8.3B): https://github.com/Tencent-Hunyuan/HunyuanVideo-1.5
-   - ComfyUI wrappers by Kijai and official.
-   - Strengths: Cinematic quality, motion coherence. 1.5 much more accessible on consumer GPUs with distillation/FP8.
-   - License: Tencent Community (check commercial restrictions, especially EU/UK).
+## 第一步：建立制作 Brief
 
-5. **CogVideoX** (THUDM)
-   - https://github.com/THUDM/CogVideo
-   - Good prompt adherence, 2B/5B variants, Diffusers + ComfyUI support.
-   - Solid for longer controllable clips (6-10s).
+优先从用户已有信息提取，不重复追问已经明确的内容。至少确定：
 
-6. **Mochi 1** (Genmo)
-   - Apache 2.0, strong fluid motion. Good alternative when motion quality is priority.
+- `goal`：视频用途与核心信息。
+- `mode`：T2V、I2V、V2V、续写、角色动画或混合模式。
+- `duration`：总时长与单镜头预期时长。
+- `aspect_ratio`：如 16:9、9:16、1:1。
+- `resolution` 与 `fps`：目标值；未知时先用验证规格。
+- `assets`：参考图、首尾帧、角色设定、产品图、已有视频、音频和字幕。
+- `style`：写实、动画、电影感、广告、纪录片等。
+- `hardware`：GPU 型号、可用显存、内存、系统、CUDA/PyTorch 环境。
+- `delivery`：最终文件格式、平台、截止时间、是否商用。
 
-7. **Open-Sora 2.0**
-   - https://github.com/hpcaitech/Open-Sora
-   - Full open pipeline (data, train, infer). Best for research or custom training. Quality closer to Hunyuan/Wan.
+信息不足但可以安全推进时，使用明确假设并标注，不因次要信息阻塞整个方案。
 
-## VRAM Optimization for 16GB (RTX 5060 class)
+## 第二步：任务路由
 
-- Prefer FP8 / GGUF Q4_K_M / Q5 quantized checkpoints.
-- Use TeaCache, sequential offloading, or xDiT parallelism where available.
-- LTX distilled + Wan 5B / CogVideoX 2B as daily drivers.
-- For 14B models: enable model CPU offload + attention slicing.
-- Upscale last with Upscayl or ComfyUI ESRGAN/RealESRGAN nodes instead of generating at high res.
+### T2V
 
-## Long Video / Extension Techniques
+适合概念镜头、环境、抽象画面和无严格主体一致性的短片。先写镜头级提示词，再决定模型。
 
-- Autoregressive / sliding window: LTX long multi-prompt workflows, Wan video continuation.
-- Splicing: Generate short clips → use last frame as I2V start for next segment. Match seed/motion strength carefully.
-- IC-LoRA / subject consistency LoRAs to prevent character drift.
-- Audio: Prefer models with native audio (LTX 2.x) or post-process with separate TTS + sync.
-- For production scale: Look at SeedCamp-style orchestration (tiered routing, batch, cost tracking) or UniVA multi-agent framework.
+### I2V
 
-## Additional Useful Open Projects
+适合人物、产品、海报、角色设定或固定构图。必须说明参考图质量、期望运动、镜头运动和需要保持不变的元素。
 
-- HyperFrames (HeyGen): Agent-native HTML-to-video / motion graphics. Great for structured production.
-- UniVA: Open multi-agent video generalist (understanding + edit + gen).
-- OpenMontage / OpenDirector: Higher-level agentic video studios.
-- Diffusers library: Always useful for scripting outside ComfyUI.
-- Awesome lists: showlab/Awesome-Video-Diffusion, sjtuplayer/Awesome-Video-Foundations.
+### V2V
 
-## Workflow Guidelines
+适合风格迁移、重绘、运动保持或已有素材增强。先确认是否需要保留构图、动作、人物身份、时长和音频。
 
-When helping with a video task:
-1. Confirm hardware (VRAM) and target length/resolution/quality.
-2. Recommend primary model + ComfyUI workflow JSON if available.
-3. Provide exact download paths (Hugging Face preferred, ModelScope for CN users).
-4. Include quantization advice and common error fixes (missing nodes, OOM, VAE mismatch).
-5. For multi-shot or long form: Suggest storyboard → keyframe → I2V chaining approach.
-6. Always note license implications for commercial use.
+### 多镜头或长视频
 
-## References
+默认流程：
 
-Place detailed model cards, example workflow JSONs, and quantization tables in references/ as needed.
-Keep this SKILL.md focused on decision-making and current best practices.
+```text
+创意目标 → 剧本/旁白 → 镜头表 → 关键帧 → 单镜头生成 → 一致性检查
+→ 补帧/超分 → 剪辑 → 配音/音乐/字幕 → 总体验收
+```
+
+不要默认使用“末帧无限续写”作为唯一方案；它可能累积构图漂移、主体变化和画质退化。
+
+## 第三步：选择技术路线
+
+先查看 [`references/model-selection.md`](references/model-selection.md) 和仓库根目录的 `catalog/projects.json`。
+
+候选路线通常包括：
+
+- **ComfyUI**：需要节点式调试、复用工作流、图形化控制或 API 集成时。
+- **Wan2.2**：需要其官方支持的文生视频、图生视频或扩展任务时。
+- **LTX-Video / LTX-2**：需要其当前上游提供的关键帧、视频扩展或音视频能力时。
+- **HunyuanVideo / HunyuanVideo-1.5**：需要腾讯混元视频路线时。
+- **CogVideo**：需要 CogVideo 系列或 Diffusers 生态集成时。
+- **Open-Sora**：研究、训练或自定义完整视频生成管线时。
+- **Diffusers**：需要 Python 代码、批处理、服务化或与其他模型组件组合时。
+
+选择结果至少包含：
+
+1. 主路线与备选路线。
+2. 选择理由。
+3. 已知限制。
+4. 需要从上游确认的版本、模型权重和许可。
+5. 最小验证配置。
+
+## 第四步：生成项目骨架
+
+当仓库脚本可用时，优先执行：
+
+```bash
+python scripts/scaffold_project.py \
+  --name "项目名称" \
+  --duration 30 \
+  --aspect-ratio 16:9 \
+  --mode mixed
+```
+
+然后填写生成的：
+
+- `brief.md`：目标、受众、风格、约束和验收条件。
+- `shots.csv`：每个镜头的时长、画面、运动、输入素材、模型、种子和状态。
+- `prompts.md`：正向提示词、负向约束、角色锚点与镜头级提示词。
+- `manifest.json`：项目参数和可复现信息。
+
+## 第五步：输出工作流方案
+
+最终方案按以下顺序给出：
+
+1. **需求摘要与假设**。
+2. **主路线 / 备选路线**。
+3. **最小验证步骤**。
+4. **安装与模型准备**：仅使用已核对的官方文档；版本不确定时不要写死。
+5. **镜头表**：镜头编号、时长、构图、主体动作、镜头运动、输入素材、生成模式。
+6. **提示词包**：全局视觉锚点、角色锚点、单镜头提示词、负向约束。
+7. **工作流参数**：分辨率、帧率、帧数、种子、采样与后处理；不确定值标为建议起点。
+8. **质量控制**：主体一致性、手部/文字、运动连续性、闪烁、边缘、音画同步和字幕。
+9. **风险与许可**。
+10. **失败回退方案**。
+
+完整交付格式见 [`references/workflow-contract.md`](references/workflow-contract.md)。
+
+## 最小验证规则
+
+首次运行默认只验证一个镜头：
+
+- 2–5 秒。
+- 较低或中等分辨率。
+- 固定种子。
+- 单一参考图或单一动作目标。
+- 关闭非必要超分、补帧和复杂后处理。
+
+验证通过后再逐项增加分辨率、时长、控制条件和批量数量。每次只改变少量变量，以便定位问题。
+
+## 显存与性能处理
+
+当出现显存不足或速度过慢时，按以下顺序处理：
+
+1. 降低帧数、分辨率或批量。
+2. 使用上游明确支持的低精度、量化或分块方案。
+3. 启用模型/文本编码器/VAE 的 CPU offload（仅在当前管线支持时）。
+4. 减少同时加载的模型、Control/LoRA 和自定义节点。
+5. 先低分辨率生成，再进行超分、补帧和编码。
+6. 记录调整前后的峰值显存、耗时和画质变化。
+
+不要仅凭显存容量断言某个模型“一定能跑”或“一定不能跑”。
+
+## 故障排查
+
+出现以下情况时阅读 [`references/troubleshooting.md`](references/troubleshooting.md)：
+
+- CUDA OOM 或系统内存耗尽。
+- ComfyUI 缺少节点或工作流版本不兼容。
+- 模型、VAE、文本编码器或 LoRA 路径错误。
+- dtype、CUDA、PyTorch 或加速库不兼容。
+- 视频闪烁、人物漂移、动作断裂、画面变形。
+- 输出帧率、时长、音频或编码异常。
+
+## 禁止事项
+
+- 不虚构不存在的模型版本、仓库、节点、参数或下载地址。
+- 不引用未经核验的 Stars 数作为推荐依据。
+- 不把社区量化包或第三方节点描述成官方发布。
+- 不保证特定显卡的速度、显存占用或最大生成时长。
+- 不在未看到工作流 JSON 时声称已经验证其节点连接。
+- 不把“生成完成”写入回复，除非实际工具或运行环境返回成功结果。
+- 不忽略模型权重的许可证、地域限制或商业使用条件。
+
+## 相关文件
+
+- [`references/model-selection.md`](references/model-selection.md)：任务与技术路线选择。
+- [`references/workflow-contract.md`](references/workflow-contract.md)：标准交付格式。
+- [`references/troubleshooting.md`](references/troubleshooting.md)：常见问题排查。
+- [`templates/video-brief.md`](templates/video-brief.md)：视频项目 Brief 模板。
+- [`../../catalog/projects.json`](../../catalog/projects.json)：机器可读项目目录。
