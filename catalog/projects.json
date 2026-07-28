@@ -1,0 +1,116 @@
+{
+  "schema_version": "1.0.0",
+  "last_reviewed": "2026-07-28",
+  "projects": [
+    {
+      "id": "comfyui",
+      "name": "ComfyUI",
+      "category": "workflow-engine",
+      "repository": "https://github.com/Comfy-Org/ComfyUI",
+      "official": true,
+      "license": "GPL-3.0",
+      "capabilities": ["node-workflow", "local-inference", "api", "image", "video", "audio"],
+      "when_to_use": "需要可视化节点工作流、可复用管线、调试或 API 集成时。",
+      "notes": "模型和自定义节点的兼容性需按具体工作流核验。"
+    },
+    {
+      "id": "wan2-2",
+      "name": "Wan2.2",
+      "category": "video-model",
+      "repository": "https://github.com/Wan-Video/Wan2.2",
+      "official": true,
+      "license": "Apache-2.0; model terms may differ",
+      "capabilities": ["text-to-video", "image-to-video", "speech-to-video", "character-animation"],
+      "when_to_use": "需要 Wan 官方视频生成模型及其公开任务能力时。",
+      "notes": "部署前核对当前模型列表、权重许可证和硬件要求。"
+    },
+    {
+      "id": "ltx-video",
+      "name": "LTX-Video / LTX-2",
+      "category": "video-model",
+      "repository": "https://github.com/Lightricks/LTX-Video",
+      "official": true,
+      "license": "Apache-2.0; model terms may differ",
+      "capabilities": ["text-to-video", "image-to-video", "video-extension", "keyframes", "audio-video"],
+      "when_to_use": "需要 LTX 当前上游支持的视频、关键帧、扩展或音视频能力时。",
+      "notes": "能力随上游版本变化，使用前查看官方 README 与模型卡。"
+    },
+    {
+      "id": "hunyuanvideo",
+      "name": "HunyuanVideo",
+      "category": "video-model",
+      "repository": "https://github.com/Tencent-Hunyuan/HunyuanVideo",
+      "official": true,
+      "license": "See upstream LICENSE and model terms",
+      "capabilities": ["text-to-video", "image-to-video", "avatar", "customization"],
+      "when_to_use": "需要混元视频基础模型或官方衍生能力时。",
+      "notes": "代码、模型权重和衍生项目可能使用不同条款。"
+    },
+    {
+      "id": "hunyuanvideo-1-5",
+      "name": "HunyuanVideo-1.5",
+      "category": "video-model",
+      "repository": "https://github.com/Tencent-Hunyuan/HunyuanVideo-1.5",
+      "official": true,
+      "license": "See upstream LICENSE and model terms",
+      "capabilities": ["text-to-video", "image-to-video"],
+      "when_to_use": "需要 HunyuanVideo 的较轻量官方路线时。",
+      "notes": "不要在未测试的环境中保证显存占用或生成速度。"
+    },
+    {
+      "id": "cogvideo",
+      "name": "CogVideo",
+      "category": "video-model",
+      "repository": "https://github.com/THUDM/CogVideo",
+      "official": true,
+      "license": "See upstream LICENSE and model terms",
+      "capabilities": ["text-to-video", "image-to-video", "diffusers"],
+      "when_to_use": "需要 CogVideo 系列、脚本化推理或 Diffusers 集成时。",
+      "notes": "根据所选具体模型核对输入格式、许可证和依赖版本。"
+    },
+    {
+      "id": "open-sora",
+      "name": "Open-Sora",
+      "category": "research-framework",
+      "repository": "https://github.com/hpcaitech/Open-Sora",
+      "official": true,
+      "license": "See upstream LICENSE and model terms",
+      "capabilities": ["training", "inference", "research", "distributed"],
+      "when_to_use": "需要研究、训练、评测或自定义完整视频生成管线时。",
+      "notes": "更适合研究与工程开发，不应默认作为最低门槛的本地创作工具。"
+    },
+    {
+      "id": "diffusers",
+      "name": "Diffusers",
+      "category": "python-library",
+      "repository": "https://github.com/huggingface/diffusers",
+      "official": true,
+      "license": "Apache-2.0",
+      "capabilities": ["python", "pipelines", "training", "inference", "video"],
+      "when_to_use": "需要 Python 管线、批处理、服务化或模型组件组合时。",
+      "notes": "具体视频模型是否受支持，应以当前文档和对应 pipeline 为准。"
+    },
+    {
+      "id": "comfyui-manager",
+      "name": "ComfyUI-Manager",
+      "category": "workflow-tool",
+      "repository": "https://github.com/Comfy-Org/ComfyUI-Manager",
+      "official": true,
+      "license": "See upstream LICENSE",
+      "capabilities": ["custom-node-management", "workflow-dependencies"],
+      "when_to_use": "管理 ComfyUI 自定义节点、依赖和工作流缺失项时。",
+      "notes": "安装第三方节点前仍需审查来源、代码和许可证。"
+    },
+    {
+      "id": "wan-skills",
+      "name": "Wan-skills",
+      "category": "agent-skills",
+      "repository": "https://github.com/Wan-Video/Wan-skills",
+      "official": true,
+      "license": "Apache-2.0",
+      "capabilities": ["agent-skill", "aigc", "reference-implementation"],
+      "when_to_use": "参考 Wan 官方 Agent Skills 的目录、脚本和文档组织方式时。",
+      "notes": "其 API Skill 与本仓库的本地工作流 Skill 定位不同。"
+    }
+  ]
+}
