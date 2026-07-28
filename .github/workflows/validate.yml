@@ -25,6 +25,12 @@ jobs:
       - name: Validate catalog
         run: python scripts/validate_catalog.py
 
+      - name: Materialize compressed workflows
+        run: python scripts/materialize_workflows.py
+
+      - name: Validate ComfyUI workflows
+        run: python scripts/validate_workflows.py
+
       - name: Compile Python scripts
         run: python -m py_compile scripts/*.py
 
