@@ -17,6 +17,7 @@ ALLOWED_CATEGORIES = {
     "agent-skills",
     "python-library",
     "research-framework",
+    "video-editing-cli",
     "video-model",
     "workflow-engine",
     "workflow-tool",
