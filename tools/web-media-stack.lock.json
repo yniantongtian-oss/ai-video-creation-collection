@@ -1,0 +1,53 @@
+{
+  "schema_version": "1.0.0",
+  "last_reviewed": "2026-07-29",
+  "core": [
+    {
+      "id": "yt-dlp",
+      "repository": "https://github.com/yt-dlp/yt-dlp",
+      "ref": "fdcc954df4955267ec1627cbeb347b661a110e7c",
+      "license": "Unlicense",
+      "purpose": "Download public or user-authorized video, audio, subtitles, and metadata from supported sites."
+    },
+    {
+      "id": "gallery-dl",
+      "repository": "https://github.com/mikf/gallery-dl",
+      "ref": "8939a870a1b319634489839a8b224803dccb13ec",
+      "license": "GPL-2.0",
+      "purpose": "Download images and galleries from public or user-authorized sources. Kept as an external executable dependency."
+    },
+    {
+      "id": "trafilatura",
+      "repository": "https://github.com/adbar/trafilatura",
+      "ref": "467fdb3829a869c018834d7b02f790980dda263c",
+      "license": "Apache-2.0",
+      "purpose": "Extract readable article and document text with metadata for research and citation."
+    }
+  ],
+  "apps": [
+    {
+      "id": "moneyprinterturbo",
+      "repository": "https://github.com/harry0703/MoneyPrinterTurbo",
+      "ref": "42f776e2e0950394ea150f28e4ab49d8ab9b3ba1",
+      "license": "MIT",
+      "profile": "creator",
+      "purpose": "Generate script, retrieve licensed stock footage, synthesize voice-over, create subtitles and background music, and render a finished short video."
+    },
+    {
+      "id": "narratoai",
+      "repository": "https://github.com/linyqh/NarratoAI",
+      "ref": "a9e17d0e36171ab604433abafd127f78eefbf350",
+      "license": "MIT",
+      "profile": "full",
+      "purpose": "Analyze and automatically edit existing video into narration/commentary content, with voice-over, subtitles, and editor exports."
+    },
+    {
+      "id": "videolingo",
+      "repository": "https://github.com/Huanshere/VideoLingo",
+      "ref": "968268bbcec63c3dac332c698e81c302abdea6c2",
+      "license": "Apache-2.0",
+      "profile": "full",
+      "purpose": "Translate, subtitle, localize, and dub existing videos."
+    }
+  ]
+}
