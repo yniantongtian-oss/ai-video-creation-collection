@@ -7,14 +7,19 @@ metadata:
   upstream_version: "1.3.2"
   upstream: "https://github.com/harry0703/MoneyPrinterTurbo"
   upstream_commit: "42f776e2e0950394ea150f28e4ab49d8ab9b3ba1"
-  local_wrapper_version: "1.0.0"
+  local_wrapper_version: "1.1.0"
 ---
 
 # MoneyPrinterTurbo 成片生成
 
 用户只需提供视频主题或脚本。Agent 应完成安装、复用现有配置、生成、等待任务结束并交付最终 MP4，不要停在命令说明阶段。
 
-本目录的 `mpt_agent.py` 是安全引导器：它会下载经过审核并锁定 Git blob SHA 的官方上游助手脚本，再原样执行。不得绕过完整性校验，也不得改为下载上游 `main` 的未固定版本。
+本目录的 `mpt_agent.py` 同时锁定两部分：
+
+1. 下载经过审核并通过 Git blob SHA 校验的官方上游助手脚本；
+2. 强制使用 `tools/web-media/apps/MoneyPrinterTurbo` 中的固定提交，不允许官方助手回退到移动的 `main.zip`。
+
+引导器会在固定项目缺失时调用仓库的 `scripts/install_web_media_stack.py --profile creator`。不得绕过完整性校验，也不得传入自定义 `--root` 替换受审核目录。
 
 ## 必须遵守
 
@@ -33,7 +38,7 @@ metadata:
 - 默认中文 Edge TTS 音色；
 - 自动字幕；
 - 背景音乐；
-- 安装目录为用户主目录下的 `MoneyPrinterTurbo`。
+- 固定项目目录为仓库内 `tools/web-media/apps/MoneyPrinterTurbo`。
 
 ## 执行方式
 
@@ -57,7 +62,7 @@ Windows PowerShell：
 powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
 ```
 
-上游官方 Skill 将标准执行范围限定为 macOS 和 Windows。Linux 环境应优先使用本仓库的 `scripts/install_web_media_stack.py --profile creator` 安装 MoneyPrinterTurbo，再依据其官方 CLI 文档运行；不要未经验证地声称官方 Skill 在 Linux 已通过测试。
+上游官方 Skill 将标准执行范围限定为 macOS 和 Windows。Linux 环境可以使用本仓库固定安装器和 MoneyPrinterTurbo CLI，但除非实际运行成功，不应声称官方 Agent Skill 的完整 Linux 流程已验证。
 
 ## 附加要求
 
@@ -71,7 +76,7 @@ uv run --no-project --python 3.11 python mpt_agent.py \
   --video-source pexels
 ```
 
-遇到陌生参数时，只运行一次上游 `cli.py --help` 核对，不要猜测参数名。
+遇到陌生参数时，只运行一次固定项目中的 `cli.py --help` 核对，不要猜测参数名。
 
 ## 返回码处理
 
@@ -92,7 +97,7 @@ RESULT_FILE=<绝对路径>/latest-result.json
 如果终端显示退出码 0，但输出被截断且看不到 `MPT_RESULT`，只读取一次：
 
 ```text
-~/MoneyPrinterTurbo/.agent-logs/moneyprinterturbo-video/latest-result.json
+<仓库>/tools/web-media/apps/MoneyPrinterTurbo/.agent-logs/moneyprinterturbo-video/latest-result.json
 ```
 
 `status=completed` 即为成功。
@@ -115,7 +120,7 @@ MPT_PEXELS_API_KEY
 
 根据 `MPT_ERROR` 和 `LOG_FILE` 修复可恢复问题并重试一次。只有确实需要新 API Key 时才询问用户。再次失败后，应报告失败阶段、简短错误和日志路径。
 
-## 与全网素材项目结合
+## 与网络素材项目结合
 
 当用户不仅要“主题生成视频”，还要求查阅文档、指定来源、保留出处或混合自有素材时，先加载 `../web-media-producer/SKILL.md`：
 
