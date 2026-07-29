@@ -24,6 +24,10 @@ outputs/
 *.mkv
 *.webm
 
+# Downloaded video editing tools
+tools/auto-editor/bin/
+tools/auto-editor/install.json
+
 # Environment and secrets
 .env
 .env.*
