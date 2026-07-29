@@ -25,16 +25,34 @@ jobs:
       - name: Validate catalog
         run: python scripts/validate_catalog.py
 
+      - name: Validate web media lock file
+        run: python -m json.tool tools/web-media-stack.lock.json >/dev/null
+
       - name: Materialize compressed workflows
         run: python scripts/materialize_workflows.py
 
       - name: Validate ComfyUI workflows
         run: python scripts/validate_workflows.py
 
-      - name: Compile Python scripts
-        run: python -m py_compile scripts/*.py
+      - name: Compile Python scripts and skill helpers
+        run: |
+          python -m py_compile scripts/*.py
+          python -m py_compile skills/moneyprinterturbo-video/mpt_agent.py
 
-      - name: Smoke-test project scaffolder
+      - name: Dry-run pinned web media installer
+        run: python scripts/install_web_media_stack.py --profile full --dry-run
+
+      - name: Dry-run heavyweight application configuration
+        run: python scripts/configure_web_media_apps.py --app all --dry-run
+
+      - name: Smoke-test command interfaces
+        run: |
+          python scripts/search_open_media.py --help >/dev/null
+          python scripts/ingest_authorized_source.py --help >/dev/null
+          python scripts/media_asset_manifest.py --help >/dev/null
+          python scripts/configure_web_media_apps.py --help >/dev/null
+
+      - name: Smoke-test video generation project scaffolder
         run: |
           python scripts/scaffold_project.py \
             --name "ci-smoke-test" \
@@ -49,3 +67,34 @@ jobs:
           test -f "$RUNNER_TEMP/ai-video-creation-test/ci-smoke-test/prompts.md"
           test -f "$RUNNER_TEMP/ai-video-creation-test/ci-smoke-test/shots.csv"
           python -m json.tool "$RUNNER_TEMP/ai-video-creation-test/ci-smoke-test/manifest.json" >/dev/null
+
+      - name: Smoke-test research-to-video project and rights gate
+        run: |
+          python scripts/scaffold_web_media_project.py \
+            --name "ci-web-media-test" \
+            --topic "Traceable research to video" \
+            --output "$RUNNER_TEMP/web-media-test" \
+            --duration 30 \
+            --aspect-ratio 9:16 \
+            --language zh-CN
+          PROJECT="$RUNNER_TEMP/web-media-test/ci-web-media-test"
+          test -f "$PROJECT/brief.md"
+          test -f "$PROJECT/project.json"
+          test -f "$PROJECT/script/script.md"
+          test -f "$PROJECT/storyboard/storyboard.csv"
+          test -f "$PROJECT/edit/edit-plan.json"
+          test -f "$PROJECT/manifests/assets.jsonl"
+          python -m json.tool "$PROJECT/project.json" >/dev/null
+          python -m json.tool "$PROJECT/edit/edit-plan.json" >/dev/null
+          printf 'ci-owned-image' > "$PROJECT/assets/images/user-owned.jpg"
+          python scripts/media_asset_manifest.py add \
+            --manifest "$PROJECT/manifests/assets.jsonl" \
+            --id "user-owned-001" \
+            --kind image \
+            --local-path "assets/images/user-owned.jpg" \
+            --license "User-owned" \
+            --rights-status user-owned \
+            --permission-note "CI fixture created by this workflow" \
+            --selected
+          python scripts/media_asset_manifest.py validate \
+            --manifest "$PROJECT/manifests/assets.jsonl"

@@ -15,10 +15,14 @@ CATALOG_PATH = ROOT / "catalog" / "projects.json"
 
 ALLOWED_CATEGORIES = {
     "agent-skills",
+    "content-automation",
+    "media-downloader",
     "python-library",
     "research-framework",
     "video-editing-cli",
+    "video-localization",
     "video-model",
+    "web-extraction",
     "workflow-engine",
     "workflow-tool",
 }
