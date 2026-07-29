@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0.0",
-  "last_reviewed": "2026-07-28",
+  "last_reviewed": "2026-07-29",
   "projects": [
     {
       "id": "comfyui",
@@ -100,6 +100,17 @@
       "capabilities": ["custom-node-management", "workflow-dependencies"],
       "when_to_use": "管理 ComfyUI 自定义节点、依赖和工作流缺失项时。",
       "notes": "安装第三方节点前仍需审查来源、代码和许可证。"
+    },
+    {
+      "id": "auto-editor",
+      "name": "Auto-Editor",
+      "category": "video-editing-cli",
+      "repository": "https://github.com/WyattBlue/auto-editor",
+      "official": true,
+      "license": "Unlicense/public domain; release binaries may bundle components under other licenses",
+      "capabilities": ["automatic-cutting", "silence-removal", "motion-detection", "subtitle-editing", "transcription", "effects", "editor-export", "agent-skills"],
+      "when_to_use": "需要把 AI 生成镜头、录屏、口播、课程或播客素材自动粗剪，并继续导出到专业剪辑软件时。",
+      "notes": "CLI 已停止通过 pip 发布；优先使用官方 Release 二进制。自动切点、字幕和商业交付仍需人工复核。"
     },
     {
       "id": "wan-skills",
