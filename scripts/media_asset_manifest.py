@@ -70,6 +70,13 @@ def command_add(args: argparse.Namespace) -> int:
         raise ManifestError(f"unsupported kind: {args.kind}")
     if args.rights_status not in KNOWN_RIGHTS:
         raise ManifestError(f"unsupported rights status: {args.rights_status}")
+    if args.selected and args.rights_status in {"unknown", "restricted"}:
+        raise ManifestError("unknown or restricted assets cannot be selected")
+    if args.rights_status in {"user-owned", "permission-granted"}:
+        if not args.permission_note.strip():
+            raise ManifestError(
+                f"{args.rights_status} requires a concise --permission-note"
+            )
 
     local_path = args.local_path
     sha256 = ""
@@ -125,10 +132,15 @@ def validation_errors(
 
         rights = str(item.get("rights_status") or "unknown")
         selected = bool(item.get("selected", False))
+        source_url = str(item.get("source_url") or "")
+        permission_note = str(item.get("permission_note") or "").strip()
+
         if selected and rights not in allowed:
-            errors.append(f"{prefix}: selected asset has disallowed rights status {rights!r}")
-        if selected and not str(item.get("source_url") or "").startswith("https://"):
-            errors.append(f"{prefix}: selected asset requires an HTTPS source_url")
+            errors.append(
+                f"{prefix}: selected asset has disallowed rights status {rights!r}"
+            )
+        if selected and rights != "user-owned" and not source_url.startswith("https://"):
+            errors.append(f"{prefix}: selected non-local asset requires an HTTPS source_url")
         if selected and not str(item.get("license") or "").strip():
             errors.append(f"{prefix}: selected asset is missing license information")
         if selected and rights in {"cc-by", "cc-by-sa"}:
@@ -136,9 +148,9 @@ def validation_errors(
                 errors.append(f"{prefix}: attribution license requires creator")
             if not str(item.get("license_url") or "").startswith("https://"):
                 errors.append(f"{prefix}: attribution license requires license_url")
-        if selected and rights == "permission-granted":
-            if not str(item.get("permission_note") or "").strip():
-                errors.append(f"{prefix}: permission-granted requires permission_note")
+        if selected and rights in {"permission-granted", "user-owned"}:
+            if not permission_note:
+                errors.append(f"{prefix}: {rights} requires permission_note")
 
         local_path = str(item.get("local_path") or "")
         if selected and not local_path:
@@ -152,7 +164,9 @@ def validation_errors(
             else:
                 recorded_hash = str(item.get("sha256") or "")
                 if recorded_hash and file_sha256(candidate) != recorded_hash:
-                    errors.append(f"{prefix}: local file SHA-256 does not match manifest")
+                    errors.append(
+                        f"{prefix}: local file SHA-256 does not match manifest"
+                    )
     return errors
 
 
@@ -208,12 +222,18 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     subparsers = parser.add_subparsers(dest="command", required=True)
 
-    add = subparsers.add_parser("add", help="Append one manifest entry and hash its local file.")
+    add = subparsers.add_parser(
+        "add", help="Append one manifest entry and hash its local file."
+    )
     add_common_manifest_argument(add)
     add.add_argument("--id", required=True)
     add.add_argument("--kind", choices=sorted(KNOWN_KINDS), required=True)
     add.add_argument("--local-path", default="")
-    add.add_argument("--source-url", required=True)
+    add.add_argument(
+        "--source-url",
+        default="",
+        help="HTTPS origin page. Optional only for user-owned local assets.",
+    )
     add.add_argument("--provider", default="")
     add.add_argument("--title", default="")
     add.add_argument("--creator", default="")
@@ -226,7 +246,9 @@ def parse_args() -> argparse.Namespace:
     add.add_argument("--selected", action="store_true")
     add.set_defaults(func=command_add)
 
-    validate = subparsers.add_parser("validate", help="Block selected assets without traceable rights.")
+    validate = subparsers.add_parser(
+        "validate", help="Block selected assets without traceable rights."
+    )
     add_common_manifest_argument(validate)
     validate.add_argument(
         "--allowed",
@@ -235,7 +257,9 @@ def parse_args() -> argparse.Namespace:
     )
     validate.set_defaults(func=command_validate)
 
-    listing = subparsers.add_parser("list", help="Print a compact tab-separated manifest view.")
+    listing = subparsers.add_parser(
+        "list", help="Print a compact tab-separated manifest view."
+    )
     add_common_manifest_argument(listing)
     listing.add_argument("--selected", action="store_true")
     listing.set_defaults(func=command_list)
