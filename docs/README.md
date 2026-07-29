@@ -1,5 +1,9 @@
 # 文档索引
 
+## 长篇视频
+
+- [`LONGFORM_VIDEO_PRODUCTION.md`](LONGFORM_VIDEO_PRODUCTION.md)：60–360 分钟长篇纪录片、科普、课程和专题视频的资料入库、分章写稿、素材审核、配音、分章渲染、最终拼接与质量检查。
+
 ## 网络研究与自动成片
 
 - [`WEB_MEDIA_PRODUCTION.md`](WEB_MEDIA_PRODUCTION.md)：Codex 网络研究、开放素材搜索、授权链接下载、素材清单、文案、分镜和成片流程。
@@ -13,6 +17,9 @@
 ## 推荐顺序
 
 ```text
+一小时以上长篇视频
+→ LONGFORM_VIDEO_PRODUCTION.md + longform-documentary-producer Skill
+
 只查资料和下载素材
 → WEB_MEDIA_PRODUCTION.md 的 core 档位
 
