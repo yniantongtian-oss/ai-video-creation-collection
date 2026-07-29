@@ -113,6 +113,72 @@
       "notes": "CLI 已停止通过 pip 发布；优先使用官方 Release 二进制。自动切点、字幕和商业交付仍需人工复核。"
     },
     {
+      "id": "moneyprinterturbo",
+      "name": "MoneyPrinterTurbo",
+      "category": "content-automation",
+      "repository": "https://github.com/harry0703/MoneyPrinterTurbo",
+      "official": true,
+      "license": "MIT",
+      "capabilities": ["script-generation", "stock-footage-search", "voice-over", "subtitles", "background-music", "short-video-rendering", "agent-skill", "cli", "api"],
+      "when_to_use": "从主题或脚本自动生成短视频，并需要素材匹配、配音、字幕、音乐和最终 MP4 时。",
+      "notes": "支持本地素材以及 Pexels、Pixabay、Coverr 等当前上游素材源；API、素材平台条款与实际功能以锁定版本和上游文档为准。"
+    },
+    {
+      "id": "narratoai",
+      "name": "NarratoAI",
+      "category": "content-automation",
+      "repository": "https://github.com/linyqh/NarratoAI",
+      "official": true,
+      "license": "MIT",
+      "capabilities": ["video-understanding", "narration-writing", "automatic-editing", "voice-over", "subtitles", "video-commentary", "jianying-export"],
+      "when_to_use": "对用户自有或已获许可的长视频、纪录片、短剧和影视素材生成解说文案、配音、字幕与自动剪辑时。",
+      "notes": "更适合已有视频的分析和解说，不应被用于未经授权地搬运商业影视作品。部分可选服务会上传视频，启用前需检查隐私和服务条款。"
+    },
+    {
+      "id": "videolingo",
+      "name": "VideoLingo",
+      "category": "video-localization",
+      "repository": "https://github.com/Huanshere/VideoLingo",
+      "official": true,
+      "license": "Apache-2.0",
+      "capabilities": ["yt-dlp-input", "whisperx", "subtitle-segmentation", "translation", "terminology", "dubbing", "voice-cloning", "streamlit"],
+      "when_to_use": "把已有视频翻译、生成单行字幕并进行多语言配音或本地化时。",
+      "notes": "需要 FFmpeg；本地 WhisperX 和部分语音方案可能需要 NVIDIA GPU。原视频的翻译权和发布权仍需核验。"
+    },
+    {
+      "id": "yt-dlp",
+      "name": "yt-dlp",
+      "category": "media-downloader",
+      "repository": "https://github.com/yt-dlp/yt-dlp",
+      "official": true,
+      "license": "Unlicense/public domain dedication",
+      "capabilities": ["video-download", "audio-download", "subtitle-download", "metadata", "site-extractors"],
+      "when_to_use": "下载公开可访问或用户已授权的视频、音频、字幕和元数据时。",
+      "notes": "工具可下载不等于拥有再发布权；不得用于绕过 DRM、付费墙、登录限制或平台安全机制。"
+    },
+    {
+      "id": "gallery-dl",
+      "name": "gallery-dl",
+      "category": "media-downloader",
+      "repository": "https://github.com/mikf/gallery-dl",
+      "official": true,
+      "license": "GPL-2.0",
+      "capabilities": ["image-download", "gallery-download", "metadata", "site-extractors"],
+      "when_to_use": "从公开图库或用户已授权的图片链接下载候选素材时。",
+      "notes": "作为外部命令安装，不复制其 GPL 代码到本仓库。每张图片仍需单独检查授权和署名要求。"
+    },
+    {
+      "id": "trafilatura",
+      "name": "Trafilatura",
+      "category": "web-extraction",
+      "repository": "https://github.com/adbar/trafilatura",
+      "official": true,
+      "license": "Apache-2.0",
+      "capabilities": ["article-extraction", "metadata", "markdown", "web-research", "link-discovery"],
+      "when_to_use": "从少量已选定的公开网页提取可读正文和元数据，用于研究、摘要和事实核查时。",
+      "notes": "默认不做无边界站点爬取；应遵守抓取礼仪、robots、网站条款和版权限制。"
+    },
+    {
       "id": "wan-skills",
       "name": "Wan-skills",
       "category": "agent-skills",
