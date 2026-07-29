@@ -28,6 +28,9 @@ outputs/
 tools/auto-editor/bin/
 tools/auto-editor/install.json
 
+# Downloaded web research and production stack
+tools/web-media/
+
 # Environment and secrets
 .env
 .env.*
