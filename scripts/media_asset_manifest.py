@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Add, list, hash, and validate research/video asset manifest entries."""
+"""Add, approve, list, hash, and validate research/video asset manifests."""
 
 from __future__ import annotations
 
@@ -46,6 +46,19 @@ def read_entries(path: Path) -> list[dict[str, Any]]:
     return entries
 
 
+def write_entries(path: Path, entries: list[dict[str, Any]]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    temp = path.with_name(f".{path.name}.{os.getpid()}.tmp")
+    temp.write_text(
+        "".join(
+            json.dumps(entry, ensure_ascii=False, sort_keys=True) + "\n"
+            for entry in entries
+        ),
+        encoding="utf-8",
+    )
+    temp.replace(path)
+
+
 def append_entry(path: Path, entry: dict[str, Any]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("a", encoding="utf-8") as handle:
@@ -58,6 +71,48 @@ def file_sha256(path: Path) -> str:
         for block in iter(lambda: handle.read(1024 * 1024), b""):
             digest.update(block)
     return digest.hexdigest()
+
+
+def resolve_local_file(manifest: Path, value: str) -> Path:
+    candidate = Path(value).expanduser()
+    if not candidate.is_absolute():
+        candidate = (manifest.parent.parent / candidate).resolve()
+    return candidate
+
+
+def validate_selectable(item: dict[str, Any], manifest: Path, allowed: set[str]) -> None:
+    asset_id = str(item.get("id") or "")
+    rights = str(item.get("rights_status") or "unknown")
+    source_url = str(item.get("source_url") or "")
+    permission_note = str(item.get("permission_note") or "").strip()
+    if rights not in allowed:
+        raise ManifestError(
+            f"{asset_id}: rights status {rights!r} is not allowed for selection"
+        )
+    if rights != "user-owned" and not source_url.startswith("https://"):
+        raise ManifestError(f"{asset_id}: selected non-local asset requires an HTTPS source_url")
+    if not str(item.get("license") or "").strip():
+        raise ManifestError(f"{asset_id}: license information is missing")
+    if rights in {"cc-by", "cc-by-sa"}:
+        if not str(item.get("creator") or "").strip():
+            raise ManifestError(f"{asset_id}: attribution license requires creator")
+        if not str(item.get("license_url") or "").startswith("https://"):
+            raise ManifestError(f"{asset_id}: attribution license requires license_url")
+    if rights in {"permission-granted", "user-owned"} and not permission_note:
+        raise ManifestError(f"{asset_id}: {rights} requires permission_note")
+    local_path = str(item.get("local_path") or "")
+    if not local_path:
+        raise ManifestError(f"{asset_id}: selected asset has no local_path")
+    candidate = resolve_local_file(manifest, local_path)
+    if not candidate.is_file():
+        raise ManifestError(f"{asset_id}: local file is missing: {candidate}")
+    recorded_hash = str(item.get("sha256") or "")
+    actual_hash = file_sha256(candidate)
+    if recorded_hash and actual_hash != recorded_hash:
+        raise ManifestError(f"{asset_id}: local file SHA-256 does not match manifest")
+    if not recorded_hash:
+        item["sha256"] = actual_hash
+    item["size_bytes"] = candidate.stat().st_size
 
 
 def command_add(args: argparse.Namespace) -> int:
@@ -82,9 +137,7 @@ def command_add(args: argparse.Namespace) -> int:
     sha256 = ""
     size_bytes: int | None = None
     if local_path:
-        candidate = Path(local_path).expanduser()
-        if not candidate.is_absolute():
-            candidate = (manifest.parent.parent / candidate).resolve()
+        candidate = resolve_local_file(manifest, local_path)
         if not candidate.is_file():
             raise ManifestError(f"local file does not exist: {candidate}")
         sha256 = file_sha256(candidate)
@@ -109,8 +162,48 @@ def command_add(args: argparse.Namespace) -> int:
         "acquired_at": datetime.now(timezone.utc).isoformat(),
         "notes": args.notes,
     }
+    if args.selected:
+        validate_selectable(entry, manifest, DEFAULT_ALLOWED)
+        entry["selected_at"] = datetime.now(timezone.utc).isoformat()
     append_entry(manifest, entry)
     print(f"Added {args.id} to {manifest}")
+    return 0
+
+
+def command_set_selected(args: argparse.Namespace) -> int:
+    manifest = args.manifest.expanduser().resolve()
+    entries = read_entries(manifest)
+    requested_ids: list[str] = list(args.id or [])
+    if args.ids_file:
+        requested_ids.extend(
+            line.strip()
+            for line in args.ids_file.expanduser().read_text(encoding="utf-8").splitlines()
+            if line.strip() and not line.lstrip().startswith("#")
+        )
+    requested_ids = list(dict.fromkeys(requested_ids))
+    if not requested_ids:
+        raise ManifestError("provide at least one --id or --ids-file")
+    by_id = {str(item.get("id") or ""): item for item in entries}
+    missing = [asset_id for asset_id in requested_ids if asset_id not in by_id]
+    if missing:
+        raise ManifestError(f"asset IDs not found: {', '.join(missing)}")
+    allowed = set(args.allowed.split(",")) if args.allowed else DEFAULT_ALLOWED
+    allowed = {value.strip() for value in allowed if value.strip()}
+    selected = args.value == "true"
+    for asset_id in requested_ids:
+        item = by_id[asset_id]
+        if selected:
+            validate_selectable(item, manifest, allowed)
+            item["selected"] = True
+            item["selected_at"] = datetime.now(timezone.utc).isoformat()
+            item["selection_note"] = args.note
+        else:
+            item["selected"] = False
+            item["unselected_at"] = datetime.now(timezone.utc).isoformat()
+            item["selection_note"] = args.note
+    write_entries(manifest, entries)
+    state = "selected" if selected else "unselected"
+    print(f"Updated {len(requested_ids)} asset(s): {state}")
     return 0
 
 
@@ -119,7 +212,6 @@ def validation_errors(
 ) -> list[str]:
     errors: list[str] = []
     seen: set[str] = set()
-    project_root = manifest.parent.parent
     for index, item in enumerate(entries, 1):
         asset_id = str(item.get("id") or "")
         prefix = asset_id or f"line {index}"
@@ -129,44 +221,11 @@ def validation_errors(
             errors.append(f"{prefix}: duplicate id")
         else:
             seen.add(asset_id)
-
-        rights = str(item.get("rights_status") or "unknown")
-        selected = bool(item.get("selected", False))
-        source_url = str(item.get("source_url") or "")
-        permission_note = str(item.get("permission_note") or "").strip()
-
-        if selected and rights not in allowed:
-            errors.append(
-                f"{prefix}: selected asset has disallowed rights status {rights!r}"
-            )
-        if selected and rights != "user-owned" and not source_url.startswith("https://"):
-            errors.append(f"{prefix}: selected non-local asset requires an HTTPS source_url")
-        if selected and not str(item.get("license") or "").strip():
-            errors.append(f"{prefix}: selected asset is missing license information")
-        if selected and rights in {"cc-by", "cc-by-sa"}:
-            if not str(item.get("creator") or "").strip():
-                errors.append(f"{prefix}: attribution license requires creator")
-            if not str(item.get("license_url") or "").startswith("https://"):
-                errors.append(f"{prefix}: attribution license requires license_url")
-        if selected and rights in {"permission-granted", "user-owned"}:
-            if not permission_note:
-                errors.append(f"{prefix}: {rights} requires permission_note")
-
-        local_path = str(item.get("local_path") or "")
-        if selected and not local_path:
-            errors.append(f"{prefix}: selected asset has no local_path")
-        elif local_path:
-            candidate = Path(local_path).expanduser()
-            if not candidate.is_absolute():
-                candidate = (project_root / candidate).resolve()
-            if not candidate.is_file():
-                errors.append(f"{prefix}: local file is missing: {candidate}")
-            else:
-                recorded_hash = str(item.get("sha256") or "")
-                if recorded_hash and file_sha256(candidate) != recorded_hash:
-                    errors.append(
-                        f"{prefix}: local file SHA-256 does not match manifest"
-                    )
+        if bool(item.get("selected", False)):
+            try:
+                validate_selectable(item, manifest, allowed)
+            except ManifestError as exc:
+                errors.append(str(exc))
     return errors
 
 
@@ -198,6 +257,8 @@ def command_list(args: argparse.Namespace) -> int:
     entries = read_entries(manifest)
     if args.selected:
         entries = [item for item in entries if bool(item.get("selected", False))]
+    if args.candidates:
+        entries = [item for item in entries if not bool(item.get("selected", False))]
     for item in entries:
         print(
             "\t".join(
@@ -246,6 +307,22 @@ def parse_args() -> argparse.Namespace:
     add.add_argument("--selected", action="store_true")
     add.set_defaults(func=command_add)
 
+    selection = subparsers.add_parser(
+        "set-selected",
+        help="Atomically approve or unapprove existing candidate assets by ID.",
+    )
+    add_common_manifest_argument(selection)
+    selection.add_argument("--id", action="append")
+    selection.add_argument("--ids-file", type=Path)
+    selection.add_argument("--value", choices=["true", "false"], required=True)
+    selection.add_argument("--note", default="Reviewed for relevance and rights.")
+    selection.add_argument(
+        "--allowed",
+        default=os.environ.get("WEB_MEDIA_ALLOWED_RIGHTS", ""),
+        help="Comma-separated allowed rights statuses.",
+    )
+    selection.set_defaults(func=command_set_selected)
+
     validate = subparsers.add_parser(
         "validate", help="Block selected assets without traceable rights."
     )
@@ -262,6 +339,7 @@ def parse_args() -> argparse.Namespace:
     )
     add_common_manifest_argument(listing)
     listing.add_argument("--selected", action="store_true")
+    listing.add_argument("--candidates", action="store_true")
     listing.set_defaults(func=command_list)
     return parser.parse_args()
 

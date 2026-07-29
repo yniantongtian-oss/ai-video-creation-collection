@@ -1,0 +1,46 @@
+{
+  "schema_version": "1.0.0",
+  "last_reviewed": "2026-07-29",
+  "tools": [
+    {
+      "id": "pypdf",
+      "name": "pypdf",
+      "repository": "https://github.com/py-pdf/pypdf",
+      "version": "6.14.2",
+      "license": "BSD-3-Clause",
+      "capabilities": ["pdf-text-extraction", "page-level-citations", "metadata"],
+      "when_to_use": "从可复制文字的 PDF 研究资料中提取正文并保留页码定位时。",
+      "notes": "扫描件无文本层时需要单独 OCR；提取结果仍需抽查版面、表格和公式。"
+    },
+    {
+      "id": "python-docx",
+      "name": "python-docx",
+      "repository": "https://github.com/python-openxml/python-docx",
+      "version": "1.2.0",
+      "license": "MIT",
+      "capabilities": ["docx-reading", "paragraphs", "tables"],
+      "when_to_use": "读取 DOCX 研究资料的段落和表格时。",
+      "notes": "复杂文本框、批注、修订和嵌入对象可能需要额外处理。"
+    },
+    {
+      "id": "edge-tts",
+      "name": "edge-tts",
+      "repository": "https://github.com/rany2/edge-tts",
+      "version": "7.2.8",
+      "license": "LGPL-3.0",
+      "capabilities": ["text-to-speech", "voice-selection", "rate-control", "volume-control", "srt-generation"],
+      "when_to_use": "把每章长文案拆成可重试语音片段，并同步生成 SRT 字幕时。",
+      "notes": "依赖在线语音服务；音色可用性、服务条款和商业使用条件应在发布前再次核对。"
+    },
+    {
+      "id": "imageio-ffmpeg",
+      "name": "imageio-ffmpeg",
+      "repository": "https://github.com/imageio/imageio-ffmpeg",
+      "version": "0.6.0",
+      "license": "BSD-2-Clause; bundled FFmpeg uses separate licenses",
+      "capabilities": ["ffmpeg-binary", "cross-platform", "video-rendering", "audio-mixing", "concatenation"],
+      "when_to_use": "系统没有 FFmpeg 时，为长视频分章渲染和最终拼接提供跨平台可执行文件。",
+      "notes": "Python 包与其捆绑的 FFmpeg/编解码器许可不同；商业交付前需检查实际构建和编码器条款。"
+    }
+  ]
+}

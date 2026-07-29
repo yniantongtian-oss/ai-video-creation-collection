@@ -1,0 +1,31 @@
+{
+  "schema_version": "1.0.0",
+  "last_reviewed": "2026-07-29",
+  "python": "3.11",
+  "packages": [
+    {
+      "id": "pypdf",
+      "version": "6.14.2",
+      "license": "BSD-3-Clause",
+      "purpose": "Extract text and page references from PDF research documents."
+    },
+    {
+      "id": "python-docx",
+      "version": "1.2.0",
+      "license": "MIT",
+      "purpose": "Read Microsoft Word DOCX research documents."
+    },
+    {
+      "id": "edge-tts",
+      "version": "7.2.8",
+      "license": "LGPL-3.0",
+      "purpose": "Generate chapter-level narration and word-timed subtitle files."
+    },
+    {
+      "id": "imageio-ffmpeg",
+      "version": "0.6.0",
+      "license": "BSD-2-Clause; bundled FFmpeg has separate terms",
+      "purpose": "Provide a cross-platform FFmpeg executable fallback for chapter rendering and assembly."
+    }
+  ]
+}

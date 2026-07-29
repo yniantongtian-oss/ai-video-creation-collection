@@ -23,6 +23,15 @@ outputs/
 *.mov
 *.mkv
 *.webm
+*.avi
+*.m4v
+*.ts
+*.mp3
+*.wav
+*.m4a
+*.aac
+*.flac
+*.ogg
 
 # Downloaded video editing tools
 tools/auto-editor/bin/
@@ -30,6 +39,9 @@ tools/auto-editor/install.json
 
 # Downloaded web research and production stack
 tools/web-media/
+
+# Long-form runtime, caches, and local configuration
+tools/longform/
 
 # Environment and secrets
 .env
