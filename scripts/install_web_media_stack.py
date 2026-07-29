@@ -113,14 +113,22 @@ def require_program(name: str) -> str:
     return path
 
 
+def program_for_plan(name: str, *, dry_run: bool) -> str:
+    """Resolve an executable, but allow a side-effect-free dry-run without it."""
+    if dry_run:
+        return shutil.which(name) or name
+    return require_program(name)
+
+
 def normalize_repo_url(url: str) -> str:
     value = url.rstrip("/")
     return value[:-4] if value.endswith(".git") else value
 
 
 def install_core(lock: dict[str, Any], *, dry_run: bool) -> list[dict[str, str]]:
-    uv = require_program("uv")
-    TOOLS_ROOT.mkdir(parents=True, exist_ok=True)
+    uv = program_for_plan("uv", dry_run=dry_run)
+    if not dry_run:
+        TOOLS_ROOT.mkdir(parents=True, exist_ok=True)
     if not VENV_DIR.exists():
         run([uv, "venv", "--python", "3.11", str(VENV_DIR)], dry_run=dry_run)
 
@@ -162,8 +170,10 @@ def install_core(lock: dict[str, Any], *, dry_run: bool) -> list[dict[str, str]]
     return records
 
 
-def ensure_clean_clone(destination: Path, repository: str, ref: str, *, dry_run: bool) -> None:
-    git = require_program("git")
+def ensure_clean_clone(
+    destination: Path, repository: str, ref: str, *, dry_run: bool
+) -> None:
+    git = program_for_plan("git", dry_run=dry_run)
     repository = normalize_repo_url(repository)
     if destination.exists() and not (destination / ".git").is_dir():
         if any(destination.iterdir()):
@@ -174,9 +184,17 @@ def ensure_clean_clone(destination: Path, repository: str, ref: str, *, dry_run:
             destination.rmdir()
 
     if not destination.exists():
-        destination.parent.mkdir(parents=True, exist_ok=True)
+        if not dry_run:
+            destination.parent.mkdir(parents=True, exist_ok=True)
         run(
-            [git, "clone", "--filter=blob:none", "--no-checkout", f"{repository}.git", str(destination)],
+            [
+                git,
+                "clone",
+                "--filter=blob:none",
+                "--no-checkout",
+                f"{repository}.git",
+                str(destination),
+            ],
             dry_run=dry_run,
         )
 
