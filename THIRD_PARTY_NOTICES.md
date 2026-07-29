@@ -71,6 +71,23 @@ Release 二进制可能包含 FFmpeg、编解码器、语音转写组件或其�
 
 安装器不会自动接受第三方许可证、API 条款或模型条款。运行前应查看锁定提交中的许可证和文档。第三方应用可能继续下载 Python 包、模型、FFmpeg、语音组件或前端依赖，这些依赖具有各自许可证。
 
+## Long-Form Production Runtime
+
+`scripts/install_longform_stack.py` 根据 `tools/longform-stack.lock.json` 在被 Git 忽略的 `tools/longform/.venv` 中安装下列固定版本：
+
+| 项目 | 版本 | 上游 | 许可证 | 用途 |
+|---|---:|---|---|---|
+| `pypdf` | `6.14.2` | <https://github.com/py-pdf/pypdf> | BSD-3-Clause | PDF 文本提取和页码定位 |
+| `python-docx` | `1.2.0` | <https://github.com/python-openxml/python-docx> | MIT | DOCX 段落和表格读取 |
+| `edge-tts` | `7.2.8` | <https://github.com/rany2/edge-tts> | LGPL-3.0 | 分章配音和 SRT 字幕生成 |
+| `imageio-ffmpeg` | `0.6.0` | <https://github.com/imageio/imageio-ffmpeg> | BSD-2-Clause | 提供跨平台 FFmpeg 可执行文件回退 |
+
+`edge-tts` 使用在线语音服务。软件许可证不等于语音服务、音色或输出内容的商业授权，发布前必须核对当前服务条款。
+
+`imageio-ffmpeg` Python 包的许可证与其平台 wheel 中捆绑的 FFmpeg 和编解码器许可证不同。使用者应检查实际下载的构建、启用的编码器、FFmpeg 许可证和交付地区要求。本仓库不提供法律意见。
+
+扫描 PDF 的 OCR、字体、背景音乐、模型服务和其他用户另行安装的组件不包含在长视频锁定清单中，分别适用其自身许可证和服务条款。
+
 ## Stock and Open Media Providers
 
 `scripts/search_open_media.py` 可以调用 Wikimedia Commons、Openverse、Pexels 和 Pixabay API。搜索结果中的许可证信息只是初步元数据；最终使用应打开原始来源页面核验。
