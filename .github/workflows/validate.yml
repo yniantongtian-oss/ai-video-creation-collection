@@ -68,7 +68,7 @@ jobs:
           test -f "$RUNNER_TEMP/ai-video-creation-test/ci-smoke-test/shots.csv"
           python -m json.tool "$RUNNER_TEMP/ai-video-creation-test/ci-smoke-test/manifest.json" >/dev/null
 
-      - name: Smoke-test research-to-video project scaffolder
+      - name: Smoke-test research-to-video project and rights gate
         run: |
           python scripts/scaffold_web_media_project.py \
             --name "ci-web-media-test" \
@@ -86,5 +86,15 @@ jobs:
           test -f "$PROJECT/manifests/assets.jsonl"
           python -m json.tool "$PROJECT/project.json" >/dev/null
           python -m json.tool "$PROJECT/edit/edit-plan.json" >/dev/null
+          printf 'ci-owned-image' > "$PROJECT/assets/images/user-owned.jpg"
+          python scripts/media_asset_manifest.py add \
+            --manifest "$PROJECT/manifests/assets.jsonl" \
+            --id "user-owned-001" \
+            --kind image \
+            --local-path "assets/images/user-owned.jpg" \
+            --license "User-owned" \
+            --rights-status user-owned \
+            --permission-note "CI fixture created by this workflow" \
+            --selected
           python scripts/media_asset_manifest.py validate \
             --manifest "$PROJECT/manifests/assets.jsonl"
