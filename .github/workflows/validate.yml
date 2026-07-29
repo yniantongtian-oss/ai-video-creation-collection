@@ -42,11 +42,15 @@ jobs:
       - name: Dry-run pinned web media installer
         run: python scripts/install_web_media_stack.py --profile full --dry-run
 
+      - name: Dry-run heavyweight application configuration
+        run: python scripts/configure_web_media_apps.py --app all --dry-run
+
       - name: Smoke-test command interfaces
         run: |
           python scripts/search_open_media.py --help >/dev/null
           python scripts/ingest_authorized_source.py --help >/dev/null
           python scripts/media_asset_manifest.py --help >/dev/null
+          python scripts/configure_web_media_apps.py --help >/dev/null
 
       - name: Smoke-test video generation project scaffolder
         run: |
