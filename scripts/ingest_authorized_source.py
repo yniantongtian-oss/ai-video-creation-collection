@@ -150,7 +150,14 @@ def ingest_document(args: argparse.Namespace) -> list[tuple[str, str, Path, str]
         f"<!-- acquired_at: {datetime.now(timezone.utc).isoformat()} -->\n\n"
     )
     destination.write_text(header + content + "\n", encoding="utf-8")
-    return [(args.asset_id, "document", destination, "Readable extraction; facts still require source verification.")]
+    return [
+        (
+            args.asset_id,
+            "document",
+            destination,
+            "Readable extraction; facts still require source verification.",
+        )
+    ]
 
 
 def media_candidates(directory: Path, before: set[Path]) -> list[Path]:
@@ -167,7 +174,9 @@ def media_candidates(directory: Path, before: set[Path]) -> list[Path]:
     files = [
         path
         for path in directory.rglob("*")
-        if path.is_file() and path.resolve() not in before and path.suffix.lower() not in ignored
+        if path.is_file()
+        and path.resolve() not in before
+        and path.suffix.lower() not in ignored
     ]
     return sorted(files)
 
@@ -200,7 +209,11 @@ def ingest_video(args: argparse.Namespace) -> list[tuple[str, str, Path, str]]:
     ]
     run(command)
     files = media_candidates(directory, before)
-    videos = [path for path in files if path.suffix.lower() in {".mp4", ".mkv", ".webm", ".mov", ".m4v"}]
+    videos = [
+        path
+        for path in files
+        if path.suffix.lower() in {".mp4", ".mkv", ".webm", ".mov", ".m4v"}
+    ]
     if not videos:
         raise IngestError("yt-dlp completed without producing a video file")
     return [
@@ -223,12 +236,13 @@ def ingest_gallery(args: argparse.Namespace) -> list[tuple[str, str, Path, str]]
     directory = args.project / "assets" / "images"
     directory.mkdir(parents=True, exist_ok=True)
     before = {path.resolve() for path in directory.rglob("*") if path.is_file()}
-    run([str(tool), "--dest", str(directory), args.url])
+    run([str(tool), "--no-input", "--directory", str(directory), args.url])
     files = media_candidates(directory, before)
     images = [
         path
         for path in files
-        if path.suffix.lower() in {".jpg", ".jpeg", ".png", ".webp", ".gif", ".avif", ".svg"}
+        if path.suffix.lower()
+        in {".jpg", ".jpeg", ".png", ".webp", ".gif", ".avif", ".svg"}
     ]
     if not images:
         raise IngestError("gallery-dl completed without producing image files")
@@ -254,7 +268,9 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--provider", default="")
     parser.add_argument("--license", required=True)
     parser.add_argument("--license-url", default="")
-    parser.add_argument("--rights-status", choices=sorted(ALLOWED_RIGHTS), required=True)
+    parser.add_argument(
+        "--rights-status", choices=sorted(ALLOWED_RIGHTS), required=True
+    )
     parser.add_argument("--attribution", default="")
     parser.add_argument("--permission-note", default="")
     parser.add_argument("--selected", action="store_true")
@@ -264,7 +280,9 @@ def parse_args() -> argparse.Namespace:
         parser.error("--url must be a public HTTPS URL")
     args.project = args.project.expanduser().resolve()
     if not (args.project / "project.json").is_file():
-        parser.error("--project must be a workspace created by scaffold_web_media_project.py")
+        parser.error(
+            "--project must be a workspace created by scaffold_web_media_project.py"
+        )
     args.asset_id = safe_name(args.asset_id)
     if args.rights_status == "permission-granted" and not args.permission_note.strip():
         parser.error("permission-granted requires --permission-note")
