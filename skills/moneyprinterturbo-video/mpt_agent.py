@@ -1,15 +1,17 @@
 #!/usr/bin/env python3
 """Verified bootstrap for MoneyPrinterTurbo's official Agent Skill helper.
 
-The upstream helper is pinned by commit and Git blob SHA. It is cached outside
-this repository, then executed with the current Python interpreter. Updating the
-pin requires reviewing the upstream helper and changing both constants.
+Both the helper and the MoneyPrinterTurbo project are pinned. The wrapper first
+ensures that tools/web-media/apps/MoneyPrinterTurbo is checked out at the audited
+commit, then passes that directory to the upstream helper through --root. This
+prevents the helper's own first-run fallback from downloading a moving main.zip.
 """
 
 from __future__ import annotations
 
 import hashlib
 import os
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -23,7 +25,10 @@ UPSTREAM_URL = (
     "https://raw.githubusercontent.com/harry0703/MoneyPrinterTurbo/"
     f"{UPSTREAM_COMMIT}/docs/skill/mpt_agent.py"
 )
-USER_AGENT = "ai-video-creation-collection-mpt-skill/1.0"
+USER_AGENT = "ai-video-creation-collection-mpt-skill/1.1"
+REPO_ROOT = Path(__file__).resolve().parents[2]
+STACK_INSTALLER = REPO_ROOT / "scripts" / "install_web_media_stack.py"
+PINNED_PROJECT = REPO_ROOT / "tools" / "web-media" / "apps" / "MoneyPrinterTurbo"
 
 
 class BootstrapError(RuntimeError):
@@ -49,7 +54,7 @@ def cache_path() -> Path:
     )
 
 
-def validate(path: Path) -> bool:
+def validate_helper(path: Path) -> bool:
     if not path.is_file():
         return False
     try:
@@ -59,13 +64,15 @@ def validate(path: Path) -> bool:
     return git_blob_sha1(content) == UPSTREAM_GIT_BLOB_SHA1
 
 
-def download_verified(destination: Path) -> None:
+def download_verified_helper(destination: Path) -> None:
     request = urllib.request.Request(UPSTREAM_URL, headers={"User-Agent": USER_AGENT})
     try:
         with urllib.request.urlopen(request, timeout=60) as response:
             content = response.read()
     except urllib.error.URLError as exc:
-        raise BootstrapError(f"unable to download official MPT helper: {exc.reason}") from exc
+        raise BootstrapError(
+            f"unable to download official MPT helper: {exc.reason}"
+        ) from exc
 
     actual = git_blob_sha1(content)
     if actual != UPSTREAM_GIT_BLOB_SHA1:
@@ -87,11 +94,99 @@ def download_verified(destination: Path) -> None:
             temp_path.unlink()
 
 
+def project_head(project: Path) -> str:
+    if not (project / ".git").is_dir():
+        return ""
+    git = shutil.which("git")
+    if not git:
+        raise BootstrapError("git is required to verify the pinned MoneyPrinterTurbo checkout")
+    result = subprocess.run(
+        [git, "rev-parse", "HEAD"],
+        cwd=project,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+        errors="replace",
+        check=False,
+    )
+    if result.returncode != 0:
+        return ""
+    return result.stdout.strip()
+
+
+def project_is_valid(project: Path) -> bool:
+    return (
+        (project / "cli.py").is_file()
+        and (project / "config.example.toml").is_file()
+        and project_head(project) == UPSTREAM_COMMIT
+    )
+
+
+def ensure_pinned_project() -> Path:
+    if project_is_valid(PINNED_PROJECT):
+        return PINNED_PROJECT
+    if not STACK_INSTALLER.is_file():
+        raise BootstrapError(
+            "the pinned MoneyPrinterTurbo project is missing and the stack installer "
+            f"was not found at {STACK_INSTALLER}; install this Skill from the full repository"
+        )
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(STACK_INSTALLER),
+            "--profile",
+            "creator",
+        ],
+        cwd=REPO_ROOT,
+        check=False,
+    )
+    if result.returncode != 0:
+        raise BootstrapError(
+            "failed to install the pinned MoneyPrinterTurbo project; "
+            f"installer exit code: {result.returncode}"
+        )
+    if not project_is_valid(PINNED_PROJECT):
+        actual = project_head(PINNED_PROJECT) or "missing"
+        raise BootstrapError(
+            "MoneyPrinterTurbo checkout verification failed after installation: "
+            f"expected {UPSTREAM_COMMIT}, got {actual}"
+        )
+    return PINNED_PROJECT
+
+
+def remove_user_root_override(argv: list[str]) -> list[str]:
+    """Force the audited checkout instead of an arbitrary or moving project root."""
+    cleaned: list[str] = []
+    index = 0
+    while index < len(argv):
+        value = argv[index]
+        if value == "--root":
+            index += 2
+            continue
+        if value.startswith("--root="):
+            index += 1
+            continue
+        cleaned.append(value)
+        index += 1
+    return cleaned
+
+
 def main() -> int:
+    project = ensure_pinned_project()
     helper = cache_path()
-    if not validate(helper):
-        download_verified(helper)
-    result = subprocess.run([sys.executable, str(helper), *sys.argv[1:]], check=False)
+    if not validate_helper(helper):
+        download_verified_helper(helper)
+    forwarded = remove_user_root_override(sys.argv[1:])
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(helper),
+            "--root",
+            str(project),
+            *forwarded,
+        ],
+        check=False,
+    )
     return result.returncode
 
 
