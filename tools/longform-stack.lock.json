@@ -1,11 +1,11 @@
 {
   "schema_version": "1.0.0",
-  "last_reviewed": "2026-07-29",
+  "last_reviewed": "2026-09-25",
   "python": "3.11",
   "packages": [
     {
       "id": "pypdf",
-      "version": "6.14.2",
+      "version": "6.19.0",
       "license": "BSD-3-Clause",
       "purpose": "Extract text and page references from PDF research documents."
     },

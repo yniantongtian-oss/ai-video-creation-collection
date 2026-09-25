@@ -19,8 +19,8 @@ import urllib.error
 import urllib.request
 from pathlib import Path
 
-UPSTREAM_COMMIT = "42f776e2e0950394ea150f28e4ab49d8ab9b3ba1"
-UPSTREAM_GIT_BLOB_SHA1 = "e51245ae7a1c263b88ca5b3cd76aa6a1896093a6"
+UPSTREAM_COMMIT = "ad5496f1b729d1d7e361dd972015d26c08b0e052"
+UPSTREAM_GIT_BLOB_SHA1 = "b7eb6cfedbeb453d10b891f21e572c10503a8d9f"
 UPSTREAM_URL = (
     "https://raw.githubusercontent.com/harry0703/MoneyPrinterTurbo/"
     f"{UPSTREAM_COMMIT}/docs/skill/mpt_agent.py"

@@ -1,25 +1,25 @@
 {
   "schema_version": "1.0.0",
-  "last_reviewed": "2026-07-29",
+  "last_reviewed": "2026-09-25",
   "core": [
     {
       "id": "yt-dlp",
       "repository": "https://github.com/yt-dlp/yt-dlp",
-      "ref": "fdcc954df4955267ec1627cbeb347b661a110e7c",
+      "ref": "c7fb478d21e9e59524befbe23f7801bb267fb880",
       "license": "Unlicense",
       "purpose": "Download public or user-authorized video, audio, subtitles, and metadata from supported sites."
     },
     {
       "id": "gallery-dl",
       "repository": "https://github.com/mikf/gallery-dl",
-      "ref": "8939a870a1b319634489839a8b224803dccb13ec",
+      "ref": "19a64031b7e695dc76d7d689a1c9d7470fc0bfc7",
       "license": "GPL-2.0",
       "purpose": "Download images and galleries from public or user-authorized sources. Kept as an external executable dependency."
     },
     {
       "id": "trafilatura",
       "repository": "https://github.com/adbar/trafilatura",
-      "ref": "467fdb3829a869c018834d7b02f790980dda263c",
+      "ref": "07fe0d6497f30fc6a91f0e591cf8623f2aba427b",
       "license": "Apache-2.0",
       "purpose": "Extract readable article and document text with metadata for research and citation."
     }
@@ -28,7 +28,7 @@
     {
       "id": "moneyprinterturbo",
       "repository": "https://github.com/harry0703/MoneyPrinterTurbo",
-      "ref": "42f776e2e0950394ea150f28e4ab49d8ab9b3ba1",
+      "ref": "ad5496f1b729d1d7e361dd972015d26c08b0e052",
       "license": "MIT",
       "profile": "creator",
       "purpose": "Generate script, retrieve licensed stock footage, synthesize voice-over, create subtitles and background music, and render a finished short video."
@@ -36,7 +36,7 @@
     {
       "id": "narratoai",
       "repository": "https://github.com/linyqh/NarratoAI",
-      "ref": "a9e17d0e36171ab604433abafd127f78eefbf350",
+      "ref": "9fa69e022d4add41205ee385207561df8796b3f1",
       "license": "MIT",
       "profile": "full",
       "purpose": "Analyze and automatically edit existing video into narration/commentary content, with voice-over, subtitles, and editor exports."
@@ -44,7 +44,7 @@
     {
       "id": "videolingo",
       "repository": "https://github.com/Huanshere/VideoLingo",
-      "ref": "968268bbcec63c3dac332c698e81c302abdea6c2",
+      "ref": "9bc30202ad87f87e2ecbdfb1cc25d5b9d62849e3",
       "license": "Apache-2.0",
       "profile": "full",
       "purpose": "Translate, subtitle, localize, and dub existing videos."

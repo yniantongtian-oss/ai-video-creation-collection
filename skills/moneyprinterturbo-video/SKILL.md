@@ -6,8 +6,8 @@ metadata:
   author: "harry0703@hotmail.com"
   upstream_version: "1.3.2"
   upstream: "https://github.com/harry0703/MoneyPrinterTurbo"
-  upstream_commit: "42f776e2e0950394ea150f28e4ab49d8ab9b3ba1"
-  local_wrapper_version: "1.1.0"
+  upstream_commit: "ad5496f1b729d1d7e361dd972015d26c08b0e052"
+  local_wrapper_version: "1.2.0"
 ---
 
 # MoneyPrinterTurbo 成片生成
@@ -112,7 +112,20 @@ MPT_LLM_API_KEY
 MPT_LLM_BASE_URL
 MPT_LLM_MODEL_NAME
 MPT_PEXELS_API_KEY
+MPT_VOLCENGINE_ARK_API_KEY
+MPT_OFOX_API_KEY
+MPT_METASO_MINIMAX_API_KEY
+MPT_MUAPI_API_KEY
 ```
+
+当助手返回以下任一计费确认标记时，**必须先向用户说明对应服务会创建付费任务，并取得明确确认**，然后才能在重试时加入对应确认参数；不得自动确认费用：
+
+- `SEEDANCE_CHARGE_CONFIRMATION_REQUIRED` → `--confirm-seedance-charge`
+- `WAVESPEED_CHARGE_CONFIRMATION_REQUIRED` → `--confirm-wavespeed-charge`
+- `OFOX_CHARGE_CONFIRMATION_REQUIRED` → `--confirm-ofox-charge`
+- `METASO_MINIMAX_CHARGE_CONFIRMATION_REQUIRED` → `--confirm-metaso-minimax-charge`
+- `MUAPI_CHARGE_CONFIRMATION_REQUIRED` → `--confirm-muapi-charge`
+
 
 用户提供后，仅把所需值作为本次命令的环境变量传入，然后重跑原命令。不要把密钥写进聊天内容、日志或 Git。
 

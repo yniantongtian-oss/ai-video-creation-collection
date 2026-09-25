@@ -45,12 +45,12 @@ Release 二进制可能包含 FFmpeg、编解码器、语音转写组件或其�
 
 - 上游项目：`harry0703/MoneyPrinterTurbo`
 - 上游地址：<https://github.com/harry0703/MoneyPrinterTurbo>
-- 审核提交：`42f776e2e0950394ea150f28e4ab49d8ab9b3ba1`
+- 审核提交：`ad5496f1b729d1d7e361dd972015d26c08b0e052`
 - 上游许可证：MIT
 - 上游 Skill：`docs/skill/SKILL.md`
-- 上游 Skill blob SHA：`a94218f1df77c7ae8ec3d5bc5c07c99618219e7e`
+- 上游 Skill blob SHA：`a14ae6b4f11743d2e362cb357797d7aae000a8ee`
 - 上游助手：`docs/skill/mpt_agent.py`
-- 上游助手 blob SHA：`e51245ae7a1c263b88ca5b3cd76aa6a1896093a6`
+- 上游助手 blob SHA：`b7eb6cfedbeb453d10b891f21e572c10503a8d9f`
 
 本仓库的 `skills/moneyprinterturbo-video/SKILL.md` 根据上游官方 Skill 进行中文适配，并增加了本仓库素材版权闸门和 Linux 能力边界说明。
 
@@ -62,14 +62,16 @@ Release 二进制可能包含 FFmpeg、编解码器、语音转写组件或其�
 
 | 项目 | 锁定提交 | 许可证 | 用途 |
 |---|---|---|---|
-| `yt-dlp/yt-dlp` | `fdcc954df4955267ec1627cbeb347b661a110e7c` | Unlicense | 公开或已授权视频、音频、字幕与元数据下载 |
-| `mikf/gallery-dl` | `8939a870a1b319634489839a8b224803dccb13ec` | GPL-2.0 | 公开或已授权图片图库下载；作为外部命令使用 |
-| `adbar/trafilatura` | `467fdb3829a869c018834d7b02f790980dda263c` | Apache-2.0 | 网页正文和元数据提取 |
-| `harry0703/MoneyPrinterTurbo` | `42f776e2e0950394ea150f28e4ab49d8ab9b3ba1` | MIT | 文案、授权素材、配音、字幕、音乐与短视频合成 |
-| `linyqh/NarratoAI` | `a9e17d0e36171ab604433abafd127f78eefbf350` | MIT | 已有视频理解、解说文案与自动剪辑 |
-| `Huanshere/VideoLingo` | `968268bbcec63c3dac332c698e81c302abdea6c2` | Apache-2.0 | 视频翻译、字幕、本地化与配音 |
+| `yt-dlp/yt-dlp` | `c7fb478d21e9e59524befbe23f7801bb267fb880` | Unlicense | 公开或已授权视频、音频、字幕与元数据下载 |
+| `mikf/gallery-dl` | `19a64031b7e695dc76d7d689a1c9d7470fc0bfc7` | GPL-2.0 | 公开或已授权图片图库下载；作为外部命令使用 |
+| `adbar/trafilatura` | `07fe0d6497f30fc6a91f0e591cf8623f2aba427b` | Apache-2.0 | 网页正文和元数据提取 |
+| `harry0703/MoneyPrinterTurbo` | `ad5496f1b729d1d7e361dd972015d26c08b0e052` | MIT | 文案、授权素材、配音、字幕、音乐与短视频合成 |
+| `linyqh/NarratoAI` | `9fa69e022d4add41205ee385207561df8796b3f1` | MIT | 已有视频理解、解说文案与自动剪辑 |
+| `Huanshere/VideoLingo` | `9bc30202ad87f87e2ecbdfb1cc25d5b9d62849e3` | Apache-2.0 | 视频翻译、字幕、本地化与配音 |
 
 安装器不会自动接受第三方许可证、API 条款或模型条款。运行前应查看锁定提交中的许可证和文档。第三方应用可能继续下载 Python 包、模型、FFmpeg、语音组件或前端依赖，这些依赖具有各自许可证。
+
+Paid video-generation providers exposed by the reviewed MoneyPrinterTurbo helper (including Seedance, WaveSpeed, OFox, Metaso MiniMax and MuAPI) require explicit per-provider charge confirmation in the local Skill wrapper. API availability does not authorize the wrapper to accept billable jobs automatically.
 
 ## Long-Form Production Runtime
 
@@ -77,7 +79,7 @@ Release 二进制可能包含 FFmpeg、编解码器、语音转写组件或其�
 
 | 项目 | 版本 | 上游 | 许可证 | 用途 |
 |---|---:|---|---|---|
-| `pypdf` | `6.14.2` | <https://github.com/py-pdf/pypdf> | BSD-3-Clause | PDF 文本提取和页码定位 |
+| `pypdf` | `6.19.0` | <https://github.com/py-pdf/pypdf> | BSD-3-Clause | PDF 文本提取和页码定位 |
 | `python-docx` | `1.2.0` | <https://github.com/python-openxml/python-docx> | MIT | DOCX 段落和表格读取 |
 | `edge-tts` | `7.2.8` | <https://github.com/rany2/edge-tts> | LGPL-3.0 | 分章配音和 SRT 字幕生成 |
 | `imageio-ffmpeg` | `0.6.0` | <https://github.com/imageio/imageio-ffmpeg> | BSD-2-Clause | 提供跨平台 FFmpeg 可执行文件回退 |
