@@ -1,9 +1,9 @@
 ---
 name: web-media-producer
-description: 让 Codex 从公开网页、开放授权素材库和用户已授权的链接收集文档、图片、视频与音频，保留来源和许可证，完成事实核查、中文文案、镜头表、配音、字幕、剪辑和最终成片。适用于“全网搜素材做视频”“查资料后自动生成短视频”“从多个来源混剪并配文案”“做科普/新闻解释/产品介绍/影视解说”“把已有视频翻译配音”等任务。默认优先使用开放授权来源和本仓库工具，不绕过登录、付费墙、DRM、robots 或平台限制。
+description: Collect documents, images, video, and audio from public web sources, openly licensed media libraries, and user-authorized URLs; preserve provenance and licensing; fact-check the project; write an original script and shot list; produce narration, subtitles, edits, and final video. Use for research-driven explainers, news context, product videos, commentary, mixed-source edits, and video localization. Prefer openly licensed and user-authorized sources. Do not bypass authentication, paywalls, DRM, robots rules, regional controls, or platform safeguards.
 metadata:
   version: 1.1.0
-  language: zh-CN
+  language: en-US
   orchestrates:
     - moneyprinterturbo-video
     - ai-video-editing
@@ -14,105 +14,83 @@ metadata:
     - Trafilatura
 ---
 
-# Codex 全流程网络素材视频制作
+# Web Research and Media Production
 
-把用户目标转换为可执行、可追溯的制作流水线：
+Convert the user's goal into a traceable production pipeline:
 
 ```text
-主题与受众
-→ 网络研究与来源核验
-→ 开放授权或已获许可素材搜索
-→ 素材清单与版权闸门
-→ 原创文案与逐镜头分镜
-→ 配音、字幕和音乐
-→ 自动粗剪与包装
-→ 成片、工程文件、来源清单和事实核查报告
+Topic and audience
+→ web research and source verification
+→ openly licensed or authorized media search
+→ asset manifest and rights gate
+→ original script and shot-by-shot storyboard
+→ narration, subtitles, and music
+→ automated rough cut and packaging
+→ video, project files, source manifest, and fact-check report
 ```
 
-“全网”表示在公开可访问且允许使用的来源中广泛研究，不代表无边界抓取互联网。技术上能够下载的内容，不能自动视为拥有复制、改编或再发布权。
+"Web research" means broad research across public and permitted sources, not unbounded crawling. Technical ability to download media does not grant the right to copy, modify, or republish it.
 
-## 一、启动与运行时配置
+## 1. Runtime setup
 
-### 1. 下载锁定版本
-
-普通研究与主题短视频：
+For ordinary research and topic-to-video work:
 
 ```bash
 python scripts/install_web_media_stack.py --profile creator
 python scripts/check_video_editing_tools.py
 ```
 
-影视解说、已有视频分析和多语言配音：
+For commentary, existing-video analysis, translation, and multilingual dubbing:
 
 ```bash
 python scripts/install_web_media_stack.py --profile full
 ```
 
-`install_web_media_stack.py` 负责下载并锁定源码，不自动安装所有重型依赖。
-
-### 2. 配置需要使用的应用
-
-MoneyPrinterTurbo：
+Configure applications only when needed:
 
 ```bash
 python scripts/configure_web_media_apps.py --app moneyprinterturbo
-```
-
-NarratoAI：
-
-```bash
 python scripts/configure_web_media_apps.py --app narratoai
-```
-
-VideoLingo：
-
-```bash
 python scripts/configure_web_media_apps.py --app videolingo
 ```
 
-一次配置全部：
+Or configure all supported applications:
 
 ```bash
 python scripts/configure_web_media_apps.py --app all
 ```
 
-首次只想确认命令和锁定提交时使用：
+Preview without changing the environment:
 
 ```bash
 python scripts/install_web_media_stack.py --profile full --dry-run
 python scripts/configure_web_media_apps.py --app all --dry-run
 ```
 
-VideoLingo 默认跳过可选 Demucs；需要人声分离时：
+VideoLingo skips optional Demucs by default. Add `--include-demucs` only when vocal separation is required.
 
-```bash
-python scripts/configure_web_media_apps.py \
-  --app videolingo \
-  --include-demucs
-```
+See `docs/WEB_MEDIA_APP_SETUP.md` for runtime details.
 
-完整运行时配置见 `docs/WEB_MEDIA_APP_SETUP.md`。
-
-### 3. 密钥位置
+Secrets belong in:
 
 ```text
 tools/web-media/.env
 ```
 
-该文件由 `config/web-media.env.example` 创建并被 Git 忽略。Agent 不得打印、提交或复述 API Key、Token 或完整凭据配置。
+This file is created from `config/web-media.env.example` and is Git-ignored. Never print, commit, or repeat API keys, tokens, or full credential-bearing configuration.
 
-## 二、先建立项目
+## 2. Create the project first
 
 ```bash
 python scripts/scaffold_web_media_project.py \
-  --name "项目名称" \
-  --topic "研究主题" \
+  --name "project-name" \
+  --topic "research topic" \
   --duration 60 \
   --aspect-ratio 9:16 \
-  --language zh-CN
+  --language en-US
 ```
 
-项目至少包含：
+Project structure:
 
 ```text
 projects/<name>/
@@ -129,62 +107,62 @@ projects/<name>/
 └── outputs/
 ```
 
-所有中间产物必须进入该项目，不能散落在仓库根目录。
+Keep intermediate artifacts inside the project directory instead of scattering them across the repository root.
 
-## 三、确定需求和交付规格
+## 3. Define requirements
 
-优先从用户已有信息提取，不重复询问已经明确的内容。至少确定：
+Reuse information the user already provided. Establish:
 
-- `topic`：主题或核心问题；
-- `goal`：解释、营销、新闻梳理、教程、故事、影视解说或翻译配音；
-- `audience`：受众知识水平；
-- `duration`：目标时长；
-- `aspect_ratio`：9:16、16:9、1:1 或 4:5；
-- `language`：文案、配音和字幕语言；
-- `platform`：抖音、B站、视频号、YouTube 等；
-- `source_scope`：开放网络、指定网站、用户文件或 URL；
-- `commercial_use`：是否商用；
-- `delivery`：成片、字幕、文案、剪辑工程和来源清单。
+- `topic`: subject or core question;
+- `goal`: explainer, marketing, news context, tutorial, story, commentary, or localization;
+- `audience`: expected knowledge level;
+- `duration`: target length;
+- `aspect_ratio`: 9:16, 16:9, 1:1, or 4:5;
+- `language`: script, narration, and subtitle language;
+- `platform`: YouTube, TikTok, Instagram, web, or another named destination;
+- `source_scope`: open web, specified sites, user files, or URLs;
+- `commercial_use`: whether commercial use is intended;
+- `delivery`: video, subtitles, script, editing project, and source/rights manifests.
 
-信息不足但可以安全推进时，使用明确假设并写入 `brief.md`。
+When minor information is missing but work can proceed safely, document explicit assumptions in `brief.md`.
 
-## 四、网络研究
+## 4. Web research
 
-### 研究原则
+Research principles:
 
-1. 优先原始资料、官方文档、论文、机构页面和可信新闻来源。
-2. 搜索摘要只能用于发现来源，不能直接作为事实依据。
-3. 每个关键事实记录标题、URL、作者/机构、发布日期和局限。
-4. 不整篇复制文章、视频字幕、书籍章节或付费内容；只保存必要摘要和短引文。
-5. 最新新闻、价格、政策、人物身份、软件版本和产品规格必须联网核验。
-6. 对矛盾来源保留不同说法，不擅自拼成确定结论。
+1. Prefer primary sources, official documentation, papers, institutional pages, and reputable journalism.
+2. Search-result snippets are for discovery only; verify the original source.
+3. Record title, URL, author/organization, publication date, and limitations for important claims.
+4. Do not reproduce full articles, transcripts, book chapters, or paywalled content. Preserve only necessary summaries and short quotations.
+5. Verify time-sensitive claims such as news, prices, policy, identity, software versions, and product specifications with current sources.
+6. Preserve meaningful source disagreement rather than forcing contradictory evidence into a single certain conclusion.
 
-### 提取公开网页正文
+Ingest a selected public document:
 
 ```bash
 python scripts/ingest_authorized_source.py \
   --type document \
   --url "https://example.com/article" \
-  --project "projects/项目名称" \
+  --project "projects/project-name" \
   --asset-id "source-001" \
   --license "Research reference; quotation limits apply" \
   --rights-status restricted
 ```
 
-`restricted` 文档可以用于研究和事实核查，但不得把其大段正文直接作为旁白或画面素材。
+A `restricted` document may support research and fact checking but must not be republished substantially as narration or visual media.
 
-默认一次处理少量已选定页面，不使用批量爬取扫描整个站点，除非站点明确允许且任务确有必要。
+Do not crawl entire sites by default. Work with a small set of selected pages unless broad crawling is clearly allowed and necessary.
 
-## 五、素材搜索与下载
+## 5. Media search and download
 
-### 来源优先级
+Prefer:
 
-1. Wikimedia Commons 公共领域或 Creative Commons 文件；
-2. Openverse 聚合的 CC 或公共领域图片与音频；
-3. Pexels 图片和视频；
-4. Pixabay 图片和视频；
-5. MoneyPrinterTurbo 当前支持的 Coverr；
-6. 用户自有素材或有书面许可的链接。
+1. Wikimedia Commons files with clear public-domain or Creative Commons status;
+2. Openverse results with verifiable licensing;
+3. Pexels;
+4. Pixabay;
+5. supported provider-licensed sources such as Coverr where available;
+6. user-owned media or links with explicit permission.
 
 ### Wikimedia Commons
 
@@ -194,10 +172,10 @@ python scripts/search_open_media.py \
   --media-type image \
   --query "space solar power station" \
   --limit 20 \
-  --output "projects/项目名称/research/search-results/commons.json"
+  --output "projects/project-name/research/search-results/commons.json"
 ```
 
-### Pexels 视频候选
+### Pexels video candidates
 
 ```bash
 python scripts/search_open_media.py \
@@ -206,12 +184,12 @@ python scripts/search_open_media.py \
   --query "solar panels satellite earth" \
   --limit 12 \
   --download-first 3 \
-  --download-dir "projects/项目名称/assets/videos" \
-  --manifest "projects/项目名称/manifests/assets.jsonl" \
-  --output "projects/项目名称/research/search-results/pexels.json"
+  --download-dir "projects/project-name/assets/videos" \
+  --manifest "projects/project-name/manifests/assets.jsonl" \
+  --output "projects/project-name/research/search-results/pexels.json"
 ```
 
-### Pixabay 图片候选
+### Pixabay image candidates
 
 ```bash
 python scripts/search_open_media.py \
@@ -220,52 +198,52 @@ python scripts/search_open_media.py \
   --query "satellite energy" \
   --limit 12 \
   --download-first 3 \
-  --download-dir "projects/项目名称/assets/images" \
-  --manifest "projects/项目名称/manifests/assets.jsonl"
+  --download-dir "projects/project-name/assets/images" \
+  --manifest "projects/project-name/manifests/assets.jsonl"
 ```
 
-下载项目默认以 `selected=false` 写入素材清单。Codex 必须查看内容、相关性、清晰度、隐私和授权信息后，才能选入镜头表。
+Downloaded search results are candidates with `selected=false`. Review content, relevance, quality, privacy, provenance, and rights before selecting them.
 
-### 用户授权的视频链接
+### User-authorized video
 
 ```bash
 python scripts/ingest_authorized_source.py \
   --type video \
   --url "https://example.com/public-video" \
-  --project "projects/项目名称" \
+  --project "projects/project-name" \
   --asset-id "user-video-001" \
   --license "User owns or has permission to reuse" \
   --rights-status permission-granted \
-  --permission-note "用户在当前任务中确认拥有再利用许可"
+  --permission-note "User confirmed permission to reuse this media for the current project"
 ```
 
-### 用户授权的公开图库
+### User-authorized gallery
 
 ```bash
 python scripts/ingest_authorized_source.py \
   --type gallery \
   --url "https://example.com/public-gallery" \
-  --project "projects/项目名称" \
+  --project "projects/project-name" \
   --asset-id "gallery-001" \
   --license "CC BY 4.0" \
   --license-url "https://creativecommons.org/licenses/by/4.0/" \
   --rights-status cc-by \
-  --creator "作者名称" \
-  --attribution "作者名称，CC BY 4.0"
+  --creator "Creator Name" \
+  --attribution "Creator Name, CC BY 4.0"
 ```
 
-不得绕过登录、地区限制、付费墙、DRM、私密账号、验证码或平台反爬安全措施。本仓库包装器故意不提供浏览器 Cookie、账号密码和 DRM 绕过参数。
+Do not bypass authentication, regional controls, paywalls, DRM, private accounts, CAPTCHAs, or anti-abuse controls. The repository wrappers intentionally do not expose browser cookies, passwords, or DRM-bypass options.
 
-## 六、素材版权闸门
+## 6. Rights gate
 
-最终剪辑前必须运行：
+Before the final edit:
 
 ```bash
 python scripts/media_asset_manifest.py validate \
-  --manifest "projects/项目名称/manifests/assets.jsonl"
+  --manifest "projects/project-name/manifests/assets.jsonl"
 ```
 
-默认允许：
+Allowed by default:
 
 ```text
 public-domain
@@ -277,142 +255,117 @@ user-owned
 permission-granted
 ```
 
-默认禁止进入最终成片：
+Blocked by default:
 
 ```text
 unknown
 restricted
 ```
 
-CC BY 与 CC BY-SA 必须记录作者和许可证 URL；`permission-granted` 必须记录许可说明。需要署名的素材应在片尾、简介或交付清单中正确署名。
+CC BY and CC BY-SA material must record creator and license URL. `permission-granted` items must include a permission note. Required attribution should appear in the credits, description, or delivery manifest as appropriate.
 
-## 七、文案和镜头表
+## 7. Script and storyboard
 
-### 文案
+Write `script/script.md` with at least:
 
-写入 `script/script.md`，至少包括：
+1. title candidates;
+2. a 3–8 second opening hook;
+3. context and problem framing;
+4. core explanation or narrative progression;
+5. evidence, data, and examples;
+6. conclusion;
+7. call to action when appropriate;
+8. fact-check checklist.
 
-1. 标题候选；
-2. 前 3–8 秒钩子；
-3. 背景和问题；
-4. 核心解释或故事推进；
-5. 证据、数据和例子；
-6. 结论；
-7. 行动引导；
-8. 事实核查清单。
+The script should use original expression rather than stitching source sentences together or imitating a living creator's distinctive style.
 
-文案必须原创表达，不把多个来源句子简单拼接，也不模仿在世创作者的独特表达风格。
+Write `storyboard/storyboard.csv` with:
 
-### 镜头表
+- start/end time;
+- narration;
+- visual search phrase;
+- selected `asset_id`;
+- crop, motion, zoom, and transition notes;
+- subtitles;
+- factual source references;
+- status.
 
-写入 `storyboard/storyboard.csv`，每个镜头记录：
+Every visual must support the narration semantically, not merely look attractive.
 
-- 起止时间；
-- 对应旁白；
-- 视觉搜索词；
-- 选用 `asset_id`；
-- 推拉摇移、裁切、缩放和转场；
-- 字幕；
-- 对应事实来源；
-- 状态。
+## 8. Choose a production route
 
-镜头必须与文案语义匹配，不能只因画面好看使用无关素材。
+### Route A: topic-to-short-video
 
-## 八、选择制作路线
+Use `skills/moneyprinterturbo-video` for explainers, marketing, educational content, and social video that does not require exact per-shot assets.
 
-### 路线 A：主题直接生成短视频
+MoneyPrinterTurbo can handle script generation, supported stock-media search, narration, subtitles, music, and rendering. Merge its final MP4, task directory, script, and media provenance into the current project.
 
-适合科普、营销、知识解释和社交媒体视频，不要求逐个使用指定素材。
+### Route B: research-driven edit with selected media
 
-加载：
-
-```text
-skills/moneyprinterturbo-video
-```
-
-MoneyPrinterTurbo 完成文案、Pexels/Pixabay/Coverr 素材、配音、字幕、音乐和成片。完成后把最终 MP4、任务目录、文案与素材来源并入当前项目。
-
-### 路线 B：研究驱动、指定素材混剪
-
-适合必须使用指定文档、图片、视频或严格镜头表的项目。
-
-加载：
+Use `skills/ai-video-editing` when specific documents, images, videos, or a strict storyboard must be honored.
 
 ```text
-skills/ai-video-editing
+Media preparation → narration → shot assembly → subtitles → music
+→ automated rough cut → human spot-check → MP4 or professional editing project
 ```
 
-流程：
+### Route C: commentary on existing authorized video
 
-```text
-素材预处理 → 旁白/配音 → 镜头拼接 → 字幕 → 音乐
-→ 自动粗剪 → 人工抽检 → MP4 或专业剪辑工程
-```
-
-### 路线 C：已有视频解说
-
-适合用户有权使用的电影、短剧、纪录片或长视频，需要视觉理解、解说文案、配音和自动剪辑。
-
-应用路径：
+Use the pinned NarratoAI installation:
 
 ```text
 tools/web-media/apps/NarratoAI
 ```
 
-必须先运行：
+Configure first:
 
 ```bash
 python scripts/configure_web_media_apps.py --app narratoai
 ```
 
-NarratoAI 只处理用户自有、公共领域或已获许可的视频。不要默认抓取商业影视作品再发布。
+Use only with user-owned, public-domain, or otherwise authorized footage. Do not default to acquiring commercial film or television and republishing it.
 
-### 路线 D：翻译、字幕和多语言配音
+### Route D: translation, subtitles, and dubbing
 
-适合把已有视频翻译为另一种语言并生成单行字幕和配音。
-
-应用路径：
+Use:
 
 ```text
 tools/web-media/apps/VideoLingo
 ```
 
-必须先运行：
+Configure first:
 
 ```bash
 python scripts/configure_web_media_apps.py --app videolingo
 ```
 
-其能力包括 yt-dlp 输入、WhisperX、字幕分段、翻译、术语表和多种 TTS。必须检查原视频的使用权、翻译权和配音发布权。
+Its capabilities may include yt-dlp input, WhisperX, subtitle segmentation, translation, terminology handling, and multiple TTS options. Verify the source video's reuse, translation, and publication rights.
 
-## 九、质量检查
+## 9. Quality checks
 
-### 内容
+Content:
+- every important factual claim has a source;
+- dates, numbers, people, and organizations are accurate;
+- speculation is not presented as fact;
+- source material is not reproduced excessively.
 
-- 每个关键事实有来源；
-- 日期、数据、人物和机构名称准确；
-- 没有把推测写成事实；
-- 文案没有大段复制来源。
+Media:
+- `asset_id` matches the actual file;
+- selected media passes manifest validation;
+- required attribution is present;
+- no unreviewed watermarks, privacy violations, sensitive information, or misleading imagery.
 
-### 素材
+Video:
+- sentence boundaries are not cut incorrectly;
+- visuals align with narration;
+- subtitle text and timing are spot-checked;
+- narration is clear and music does not overpower speech;
+- framing preserves the subject;
+- final files play correctly and meet duration, resolution, and frame-rate requirements.
 
-- `asset_id` 与实际文件一致；
-- 所有选中素材通过 manifest 校验；
-- 需要署名的素材已生成署名清单；
-- 没有水印、个人隐私、敏感信息或误导性画面。
+## 10. Deliverables
 
-### 视频
-
-- 句首句尾未被误剪；
-- 画面与旁白同步；
-- 字幕无明显错字且时间轴正确；
-- 配音清晰，音乐不过度压过人声；
-- 横竖屏裁切没有切掉主体；
-- 最终文件可播放，时长、分辨率和帧率符合要求。
-
-## 十、最终交付
-
-至少交付：
+At minimum:
 
 ```text
 outputs/final.mp4
@@ -424,13 +377,6 @@ research/sources.md
 edit/edit-plan.json
 ```
 
-同时给出简短报告：
+Also provide a concise report covering major research sources, media providers, attribution requirements, the chosen production route, steps that actually ran, and any remaining human-review items.
 
-- 研究了哪些主要来源；
-- 使用了哪些素材平台；
-- 哪些素材需要署名；
-- 使用哪条制作路线；
-- 哪些步骤已实际运行；
-- 哪些内容仍需人工确认。
-
-没有实际运行成片流程时，不能声称视频已经生成。素材版权闸门未通过时，不能进入最终渲染。
+Never claim the video was generated unless the production workflow actually ran successfully. Do not render the final release when the rights gate has not passed.
