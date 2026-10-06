@@ -46,9 +46,9 @@ def parse_args() -> argparse.Namespace:
         help="Target minutes per chapter (default: 7).",
     )
     parser.add_argument("--aspect-ratio", choices=["16:9", "9:16", "1:1"], default="16:9")
-    parser.add_argument("--language", default="zh-CN")
-    parser.add_argument("--audience", default="大众观众")
-    parser.add_argument("--style", default="纪录片式科普，信息密度高但表达自然")
+    parser.add_argument("--language", default="en-US")
+    parser.add_argument("--audience", default="General audience")
+    parser.add_argument("--style", default="Documentary explainer with high information density and natural narration")
     parser.add_argument("--chars-per-minute", type=int, default=260)
     parser.add_argument("--visual-seconds", type=int, default=10)
     parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT)
@@ -94,10 +94,10 @@ def make_chapters(project: Path, count: int, duration: int) -> list[dict[str, ob
             (chapter_dir / relative).mkdir(parents=True, exist_ok=True)
         write_text(
             chapter_dir / "brief.md",
-            f"# 第 {index} 章\n\n"
-            "## 本章目标\n\n待生成。\n\n"
-            "## 必须回答的问题\n\n- 待生成\n\n"
-            "## 主要来源\n\n- 待检索\n",
+            f"# Chapter {index}\n\n"
+            "## Chapter goal\n\nTo be generated.\n\n"
+            "## Questions this chapter must answer\n\n- To be generated\n\n"
+            "## Primary sources\n\n- To be retrieved\n",
         )
         write_text(chapter_dir / "script.md", "")
         write_text(chapter_dir / "narration.txt", "")
@@ -123,7 +123,7 @@ def make_chapters(project: Path, count: int, duration: int) -> list[dict[str, ob
             {
                 "id": chapter_id,
                 "number": index,
-                "title": f"第 {index} 章（待规划）",
+                "title": f"Chapter {index} (planning pending)",
                 "target_minutes": minutes,
                 "status": "pending",
             }
@@ -194,7 +194,7 @@ def main() -> int:
         },
         "narration": {
             "provider": "edge-tts",
-            "voice": "zh-CN-XiaoxiaoNeural",
+            "voice": "en-US-JennyNeural",
             "rate": "+0%",
             "volume": "+0%",
             "max_chars_per_segment": 1800,
@@ -267,45 +267,45 @@ def main() -> int:
 
     brief = f"""# {args.name}
 
-## 核心主题
+## Core topic
 
 {args.topic}
 
-## 受众
+## Audience
 
 {args.audience}
 
-## 表达风格
+## Style
 
 {args.style}
 
-## 目标规格
+## Target specification
 
-- 时长：约 {args.duration} 分钟
-- 章节：{chapter_count} 章，每章约 {args.chapter_minutes} 分钟
-- 文案目标：约 {target_chars:,} 个中文字符
-- 视觉段落：约 {target_shots} 个，每 {args.visual_seconds} 秒更换一次主要画面
-- 画幅：{args.aspect_ratio}（{width}×{height}）
-- 语言：{args.language}
+- Duration: about {args.duration} minutes
+- Chapters: {chapter_count}, about {args.chapter_minutes} minutes each
+- Script target: about {target_chars:,} characters
+- Visual segments: about {target_shots}, with a major visual change every {args.visual_seconds} seconds
+- Aspect ratio: {args.aspect_ratio} ({width}×{height})
+- Language: {args.language}
 
-## 长视频制作原则
+## Long-form production principles
 
-1. 先建立来源库和章节大纲，再逐章写稿。
-2. 每个事实保留来源标记；来源不足时明确写 `NEEDS_SOURCE`。
-3. 每章独立配音、字幕和渲染，失败时只重跑该章。
-4. 自动下载的素材默认只是候选，版权和相关性审核通过后才进入成片。
-5. 最终拼接前检查章节顺序、音量、字幕、事实、素材授权和总时长。
+1. Build the source library and chapter outline before drafting chapters.
+2. Preserve source markers for factual claims; write `NEEDS_SOURCE` when evidence is insufficient.
+3. Narrate, subtitle, and render chapters independently so a failed chapter can be rerun alone.
+4. Automatically downloaded media is candidate-only until content, relevance, and rights are reviewed.
+5. Before final assembly, verify chapter order, loudness, subtitles, factual claims, media rights, and total duration.
 """
     write_text(project / "brief.md", brief)
     write_text(
         project / "README.md",
-        "# 项目操作顺序\n\n"
-        "1. 把 PDF、DOCX、PPTX、TXT、Markdown、字幕等资料放进 `research/inbox/`。\n"
-        "2. 运行 `ingest_longform_corpus.py` 建立可检索语料库。\n"
-        "3. 运行 `longform_pipeline.py run` 生成摘要、大纲、逐章文案和镜头表。\n"
-        "4. 批量搜索并审核图片、视频、音频素材。\n"
-        "5. 运行分章配音和分章渲染。\n"
-        "6. 运行最终拼接与质量检查。\n",
+        "# Project Workflow\n\n"
+        "1. Put PDF, DOCX, PPTX, TXT, Markdown, subtitle, and other research files in `research/inbox/`.\n"
+        "2. Run `ingest_longform_corpus.py` to build the searchable corpus.\n"
+        "3. Run `longform_pipeline.py run` to create summaries, an outline, chapter scripts, and shot plans.\n"
+        "4. Search for and review image, video, and audio assets.\n"
+        "5. Run chapter narration and chapter rendering.\n"
+        "6. Run final assembly and quality checks.\n",
     )
 
     print(f"Long-form project created: {project}")
