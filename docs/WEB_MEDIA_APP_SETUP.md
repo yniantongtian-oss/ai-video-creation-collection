@@ -1,18 +1,18 @@
-# 重型视频应用配置
+# Heavyweight Video Application Setup
 
-`scripts/install_web_media_stack.py` 负责把第三方工具按锁定提交下载到 `tools/web-media/`。MoneyPrinterTurbo、NarratoAI 和 VideoLingo 的 Python 依赖可能很大，因此运行时配置由独立脚本完成：
+`scripts/install_web_media_stack.py` downloads third-party tools at pinned commits into `tools/web-media/`. MoneyPrinterTurbo, NarratoAI, and VideoLingo can have large Python dependency sets, so runtime configuration is handled separately:
 
 ```bash
 python scripts/configure_web_media_apps.py --app all
 ```
 
-先预览，不修改文件：
+Preview without modifying files:
 
 ```bash
 python scripts/configure_web_media_apps.py --app all --dry-run
 ```
 
-## 单独配置
+## Configure individual applications
 
 ### MoneyPrinterTurbo
 
@@ -21,20 +21,20 @@ python scripts/install_web_media_stack.py --profile creator
 python scripts/configure_web_media_apps.py --app moneyprinterturbo
 ```
 
-配置器会：
+The configurator:
 
-1. 核对本地 Git HEAD 是否等于 `tools/web-media-stack.lock.json` 中的锁定提交；
-2. 运行 `uv sync --frozen`；
-3. 若不存在 `config.toml`，从 `config.example.toml` 创建；
-4. 不写入或打印任何 API Key。
+1. Verifies that local Git HEAD matches the pinned commit in `tools/web-media-stack.lock.json`.
+2. Runs `uv sync --frozen`.
+3. Creates `config.toml` from `config.example.toml` when needed.
+4. Never writes or prints API keys.
 
-随后可直接加载：
+Then load:
 
 ```text
 skills/moneyprinterturbo-video
 ```
 
-官方 Agent Skill 会在实际生成时识别缺失的 LLM 与 Pexels 凭据，并只请求必要字段。
+The official Agent Skill detects missing LLM and Pexels credentials only when generation requires them and requests only the fields that are actually needed.
 
 ### NarratoAI
 
@@ -43,20 +43,20 @@ python scripts/install_web_media_stack.py --profile full
 python scripts/configure_web_media_apps.py --app narratoai
 ```
 
-配置器会运行官方本地流程：
+The configurator runs the official local setup:
 
 ```bash
 uv sync
 ```
 
-并从 `config.example.toml` 创建本地 `config.toml`。编辑配置后启动：
+It also creates a local `config.toml` from `config.example.toml`. After editing the configuration:
 
 ```bash
 cd tools/web-media/apps/NarratoAI
 uv run streamlit run webui.py --server.maxUploadSize=2048
 ```
 
-浏览器访问：
+Open:
 
 ```text
 http://127.0.0.1:8501
@@ -69,13 +69,13 @@ python scripts/install_web_media_stack.py --profile full
 python scripts/configure_web_media_apps.py --app videolingo
 ```
 
-配置器调用锁定版本提供的官方安装器：
+The configurator calls the installer provided by the pinned upstream version:
 
 ```bash
 python setup_env.py --yes --skip-demucs
 ```
 
-默认跳过可选的 Demucs，以降低首次安装体积。需要人声分离时：
+Demucs is skipped by default to reduce initial installation size. To include vocal separation:
 
 ```bash
 python scripts/configure_web_media_apps.py \
@@ -83,29 +83,29 @@ python scripts/configure_web_media_apps.py \
   --include-demucs
 ```
 
-Windows 启动：
+Windows launch command:
 
 ```text
 OneKeyStart.bat
 ```
 
-macOS / Linux 启动：
+macOS / Linux:
 
 ```bash
 cd tools/web-media/apps/VideoLingo
 .venv/bin/streamlit run st.py
 ```
 
-## 配置安全
+## Configuration safety
 
-- 第三方应用目录、虚拟环境、模型、缓存和本地配置都在 Git 忽略目录中。
-- 配置器不会覆盖已有 `config.toml`。
-- 配置器拒绝在仓库源码存在未提交改动时运行，避免把未知修改混入受信任环境。
-- 依赖安装仍会访问 PyPI、模型站点和第三方服务；企业或高安全环境应先检查依赖锁、软件物料清单与网络策略。
-- NarratoAI、VideoLingo 的部分功能会调用外部 API 或上传媒体。启用前核对隐私、内容、费用和商业授权条款。
+- Third-party application directories, virtual environments, models, caches, and local configuration are Git-ignored.
+- The configurator does not overwrite an existing `config.toml`.
+- It refuses to run when a third-party source tree has uncommitted changes, reducing the risk of mixing unknown modifications into a reviewed environment.
+- Dependency installation still contacts PyPI, model hosts, and third-party services. Enterprise or high-security environments should review dependency locks, SBOMs, and network policy first.
+- Some NarratoAI and VideoLingo features call external APIs or upload media. Review privacy, content, pricing, and commercial-use terms before enabling them.
 
-## 硬件提示
+## Hardware notes
 
-- MoneyPrinterTurbo 的常规素材、Edge TTS 和 FFmpeg 路线通常不要求独立显卡；具体 API 与编码速度取决于环境。
-- NarratoAI 的基础流程可以使用 CPU，但本地视觉、语音和克隆模型可能明显增加内存、磁盘与显存需求。
-- VideoLingo 的 WhisperX、PyTorch、Demucs 和本地配音路线较重；NVIDIA GPU 能改善部分本地任务，但具体兼容性以锁定提交的官方安装器输出为准。
+- Common MoneyPrinterTurbo asset, Edge TTS, and FFmpeg workflows typically do not require a discrete GPU; API and encoding performance still depends on the environment.
+- Basic NarratoAI flows can run on CPU, while local vision, speech, and cloning models may substantially increase RAM, storage, and VRAM requirements.
+- VideoLingo workflows involving WhisperX, PyTorch, Demucs, or local dubbing are heavier. An NVIDIA GPU can accelerate some local tasks; compatibility depends on the pinned upstream installer.
