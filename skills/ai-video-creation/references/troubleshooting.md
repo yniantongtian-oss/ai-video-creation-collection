@@ -1,166 +1,143 @@
-# AI 视频工作流故障排查
+# AI Video Workflow Troubleshooting
 
-先保存错误日志、工作流、模型名称、版本和完整环境信息。一次只改变少量变量，避免问题被新的改动掩盖。
+Save the error log, workflow, model name, versions, and complete environment information before changing anything. Change only a small number of variables at a time.
 
-## 通用排查顺序
+## General troubleshooting order
 
-1. 复现最小失败案例。
-2. 记录操作系统、GPU、驱动、CUDA、Python、PyTorch 和应用版本。
-3. 确认模型、VAE、文本编码器、LoRA 和自定义节点路径。
-4. 删除非必要节点、控制条件和后处理。
-5. 使用较短帧数、较低分辨率和批量 1。
-6. 对照上游官方示例测试。
-7. 只在官方示例通过后恢复自定义内容。
+1. Reproduce the smallest failing case.
+2. Record OS, GPU, driver, CUDA, Python, PyTorch, and application versions.
+3. Verify model, VAE, text encoder, LoRA, and custom-node paths.
+4. Remove nonessential nodes, control conditions, and post-processing.
+5. Test with fewer frames, lower resolution, and batch size 1.
+6. Compare against the official upstream example.
+7. Restore custom content only after the official example works.
 
-## CUDA OOM / 显存不足
+## CUDA OOM / insufficient VRAM
 
-### 常见原因
+### Common causes
 
-- 帧数、分辨率或批量过高。
-- 多个模型、VAE、文本编码器和控制网络同时驻留。
-- 精度或量化方案与硬件不匹配。
-- 自定义节点保留中间张量或缓存。
-- 同一 GPU 上有其他进程占用显存。
+- Frame count, resolution, or batch size is too high.
+- Multiple models, VAEs, text encoders, and control networks remain resident at once.
+- Precision or quantization does not match the hardware.
+- Custom nodes retain intermediate tensors or caches.
+- Other processes are consuming GPU memory.
 
-### 处理顺序
+### Recommended order
 
-1. 关闭其他 GPU 进程并重新启动工作流。
-2. 把批量设为 1。
-3. 降低帧数，再降低宽高。
-4. 暂停 Control、LoRA、超分和补帧。
-5. 使用上游明确支持的低精度、量化、分块或 offload。
-6. 检查系统内存是否足以承受 CPU offload。
-7. 记录峰值显存，避免仅凭感觉调整。
+1. Close other GPU processes and restart the workflow.
+2. Set batch size to 1.
+3. Reduce frame count, then dimensions.
+4. Disable optional Control, LoRA, upscaling, and interpolation.
+5. Use only upstream-supported low precision, quantization, tiling, or offload.
+6. Verify system RAM is sufficient for CPU offload.
+7. Record peak VRAM instead of tuning by intuition.
 
-不要把某次成功直接推广为所有分辨率、帧数和工作流都能运行。
+Do not generalize one successful run to all resolutions, frame counts, and workflows.
 
-## ComfyUI 缺少节点
+## Missing ComfyUI nodes
 
-### 症状
+### Symptoms
 
-- 打开工作流后出现红色未知节点。
-- 节点名称存在，但输入输出端口不同。
-- 安装节点后启动报导入错误。
+- Red unknown nodes after loading a workflow.
+- The node name exists but ports differ.
+- Import errors after node installation.
 
-### 排查
+### Checks
 
-1. 从工作流元数据或作者说明确认节点仓库。
-2. 核对节点版本或提交号，而不是只看仓库名称。
-3. 检查节点是否被更名、拆分或合并到核心。
-4. 查看 ComfyUI 控制台中的第一个真实异常。
-5. 在干净环境里只安装该工作流最小节点集。
-6. 不要从不明来源自动执行安装脚本。
+1. Identify the node repository from workflow metadata or author documentation.
+2. Verify the node version or commit, not only the repository name.
+3. Check whether the node was renamed, split, or merged into core.
+4. Read the first real exception in the ComfyUI console.
+5. Test in a clean environment with only the minimum required node set.
+6. Do not execute install scripts from unknown sources automatically.
 
-## 模型或组件路径错误
+## Incorrect model or component paths
 
-### 症状
+### Symptoms
 
-- 找不到 checkpoint、VAE、text encoder、CLIP 或 LoRA。
-- 加载到同名但不兼容的文件。
-- 输出颜色、结构或尺寸异常。
+- Missing checkpoint, VAE, text encoder, CLIP, or LoRA.
+- A same-named but incompatible file is loaded.
+- Output color, structure, or dimensions are incorrect.
 
-### 排查
+### Checks
 
-- 对照工作流要求确认文件类型和目录。
-- 核对文件名、大小、哈希或模型卡。
-- 区分完整模型、Transformer、VAE、文本编码器和量化文件。
-- 检查符号链接、网络盘和权限。
-- 重启应用以刷新模型列表。
+- Confirm required file type and directory from the workflow.
+- Verify filename, size, hash, or model card.
+- Distinguish full models, transformers, VAEs, text encoders, and quantized files.
+- Check symlinks, network drives, and permissions.
+- Restart the application if it caches model lists.
 
-## dtype、CUDA 或依赖不兼容
+## dtype, CUDA, or dependency incompatibility
 
-### 症状
+### Symptoms
 
-- `not implemented for ...`、`invalid device function`、`no kernel image`。
-- Flash Attention、xFormers 或自定义内核编译失败。
-- 模型加载时出现 dtype 或算子错误。
+- `not implemented for ...`, `invalid device function`, or `no kernel image`.
+- Flash Attention, xFormers, or custom-kernel compilation failures.
+- dtype or operator errors while loading models.
 
-### 排查
+### Checks
 
-1. 先确认 GPU 架构与上游要求。
-2. 使用上游推荐的 Python、PyTorch 和 CUDA 组合。
-3. 不混用来自不同教程的固定版本。
-4. 暂时禁用可选加速库，验证基础管线。
-5. 重新安装前记录当前依赖清单。
-6. 在独立虚拟环境中测试，不污染可用环境。
+1. Confirm the GPU architecture against upstream requirements.
+2. Use the upstream-recommended Python, PyTorch, and CUDA combination.
+3. Do not mix pinned versions from unrelated tutorials.
+4. Disable optional acceleration libraries and validate the base pipeline.
+5. Record the dependency set before reinstalling.
+6. Test in an isolated environment.
 
-## 视频闪烁
+## Video flicker
 
-### 可能原因
+Possible causes include unstable frame detail, time-varying prompts or controls, frame-by-frame post-processing, or conflicting subject/camera motion.
 
-- 单帧细节变化过大。
-- 提示词或控制条件在时间轴上不稳定。
-- 超分、锐化或逐帧处理引入差异。
-- 镜头运动和主体运动互相冲突。
+Try shorter shots, smaller motion, stable identity/wardrobe/lighting/background anchors, separate tests for generation/upscaling/interpolation, reduced per-frame randomness, and model-supported consistency or keyframe controls.
 
-### 处理
+## Character or product drift
 
-- 缩短镜头并降低动作幅度。
-- 固定角色、服装、光线和背景锚点。
-- 分别测试生成、超分和补帧，定位闪烁来源。
-- 减少逐帧随机处理。
-- 使用模型当前支持的一致性或关键帧控制方式。
+- Move from T2V to I2V or keyframe-driven generation.
+- Put invariant traits in a global anchor.
+- Reuse the same reference assets and naming across shots.
+- Shorten shots and connect them in editing.
+- Allow only a small number of explicit changes.
+- Record model, seed, and parameters for approved shots.
 
-## 人物或产品漂移
+## Broken motion or camera jumps
 
-### 处理
+- Write motion as start → process → end.
+- Avoid too many complex actions in one short shot.
+- Separate subject motion from camera motion.
+- For continuation, inspect boundary composition, speed, and direction.
+- Add intermediate keyframes or shorter clips when necessary.
 
-- 从 T2V 改为 I2V 或关键帧驱动。
-- 把不可变化特征写入全局锚点。
-- 每个镜头使用统一参考素材和命名。
-- 拆短镜头，通过剪辑连接。
-- 只允许少量明确变化，避免提示词包含冲突属性。
-- 记录通过镜头的种子、模型和参数。
+## Garbled text
 
-## 动作断裂或镜头瞬移
+Video models are generally unreliable for long readable text. Generate text-free visuals and add titles, subtitles, logos, or scene text in post-production. Use a separate image asset or tracked overlay when text must appear in the scene.
 
-- 把动作写成“起点—过程—终点”。
-- 避免一个短镜头同时包含多个复杂动作。
-- 区分主体运动和镜头运动。
-- 续写时检查首尾帧构图、速度和运动方向。
-- 必要时使用中间关键帧或更短片段。
+## Frame-rate, duration, or encoding problems
 
-## 文字乱码
+Check generated frame count against target fps, duplicated/dropped boundary frames, interpolation output fps, audio sample rate and duration, video time base, FFmpeg arguments, and container/platform requirements.
 
-视频模型通常不适合直接生成长段可读文字。处理方式：
-
-- 生成无文字画面。
-- 在剪辑或合成阶段叠加标题、字幕和标志。
-- 对必须出现在场景中的文字使用单独图像资产或后期跟踪。
-
-## 帧率、时长或编码异常
-
-### 检查
-
-- 生成帧数与目标 fps 是否对应。
-- 工作流是否重复或丢弃首尾帧。
-- 补帧后 fps 是否被正确写入容器。
-- 音频采样率、时长和视频时间基是否一致。
-- FFmpeg 编码参数和输出容器是否匹配平台要求。
-
-### 建议记录
+Record:
 
 ```text
-原始帧数：
-原始 fps：
-补帧倍率：
-输出 fps：
-视频时长：
-音频时长：
-编码器/容器：
+Source frames:
+Source fps:
+Interpolation factor:
+Output fps:
+Video duration:
+Audio duration:
+Encoder/container:
 ```
 
-## 排查报告模板
+## Troubleshooting report template
 
 ```text
-问题：
-最小复现步骤：
-错误日志第一处异常：
-环境：
-模型与版本：
-工作流与节点版本：
-输入规格：
-已经尝试：
-结果变化：
-下一步单变量测试：
+Problem:
+Minimal reproduction:
+First relevant error:
+Environment:
+Model and version:
+Workflow and node versions:
+Input specification:
+Already tried:
+Observed change:
+Next single-variable test:
 ```
