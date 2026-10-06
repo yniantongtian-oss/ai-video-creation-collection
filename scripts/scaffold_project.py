@@ -87,61 +87,61 @@ def build_shots(duration: float, shot_length: float, mode: str) -> list[dict[str
 def write_brief(path: Path, args: argparse.Namespace) -> None:
     content = f"""# {args.name} — Video Brief
 
-## 1. 项目目标
+## 1. Project goals
 
-- 用途：
-- 目标受众：
-- 核心信息：
-- 发布平台：
-- 是否商用：待确认
+- Purpose:
+- Target audience:
+- Core message:
+- Distribution platform:
+- Commercial use: to be confirmed
 
-## 2. 交付规格
+## 2. Delivery specification
 
-- 总时长：{args.duration:g} 秒
-- 画面比例：{args.aspect_ratio}
-- 帧率：{args.fps} fps
-- 生成模式：{args.mode}
-- 目标分辨率：待确认
-- 输出格式：待确认
+- Total duration: {args.duration:g} seconds
+- Aspect ratio: {args.aspect_ratio}
+- Frame rate: {args.fps} fps
+- Generation mode: {args.mode}
+- Target resolution: to be confirmed
+- Output format: to be confirmed
 
-## 3. 素材
+## 3. Assets
 
-- 参考图：
-- 首尾帧：
-- 角色/产品设定：
-- 已有视频：
-- 音频/旁白/字幕：
+- Reference images:
+- First/last frames:
+- Character/product design:
+- Existing video:
+- Audio/narration/subtitles:
 
-## 4. 视觉与声音
+## 4. Visual and audio direction
 
-- 视觉风格：
-- 色彩与光线：
-- 镜头语言：
-- 音乐/环境声：
-- 禁止出现的元素：
+- Visual style:
+- Color and lighting:
+- Camera language:
+- Music/ambience:
+- Prohibited elements:
 
-## 5. 技术环境
+## 5. Technical environment
 
-- 操作系统：
-- GPU / 可用显存：
-- 内存：
-- CUDA / PyTorch：
-- ComfyUI 或 Diffusers 版本：
-- 候选模型：{args.model or '待选'}
+- Operating system:
+- GPU / available VRAM:
+- RAM:
+- CUDA / PyTorch:
+- ComfyUI or Diffusers version:
+- Candidate model: {args.model or 'to be selected'}
 
-## 6. 验收标准
+## 6. Acceptance criteria
 
-- 主体身份与外观一致。
-- 动作和镜头运动连续，无明显跳变。
-- 画面无严重闪烁、重影、结构畸变或不可接受的文字错误。
-- 帧率、时长、比例、字幕和音频符合交付规格。
-- 模型、种子、提示词、输入素材和后处理步骤可追溯。
+- Subject identity and appearance remain consistent.
+- Subject and camera motion are continuous without obvious jumps.
+- No severe flicker, ghosting, structural deformation, or unacceptable text artifacts.
+- Frame rate, duration, aspect ratio, subtitles, and audio meet the delivery specification.
+- Model, seed, prompts, input assets, and post-processing steps are traceable.
 
-## 7. 风险与待确认项
+## 7. Risks and open questions
 
-- 模型和权重许可证：待核验。
-- 具体显存需求与生成速度：需用最小样片实测。
-- 人脸、商标、音乐和素材授权：待确认。
+- Model and weight licenses: verify before use.
+- VRAM requirements and generation speed: measure with a minimal sample.
+- Rights for faces, trademarks, music, and source media: confirm before release.
 """
     path.write_text(content, encoding="utf-8")
 
@@ -149,49 +149,50 @@ def write_brief(path: Path, args: argparse.Namespace) -> None:
 def write_prompts(path: Path, args: argparse.Namespace) -> None:
     content = f"""# {args.name} — Prompt Pack
 
-## 全局视觉锚点
+## Global visual anchors
 
 ```text
-主体：
-场景：
-时代/地点：
-美术风格：
-色彩：
-光线：
-镜头与镜头质感：
-画面比例：{args.aspect_ratio}
+Subject:
+Scene:
+Period/location:
+Art direction:
+Color:
+Lighting:
+Camera/lens character:
+Aspect ratio: {args.aspect_ratio}
 ```
 
-## 一致性锚点
+## Consistency anchors
 
 ```text
-角色/产品不可变化的特征：
-服装/材质/颜色：
-比例与结构：
-标志性细节：
+Invariant character/product traits:
+Wardrobe/material/color:
+Proportions and structure:
+Signature details:
 ```
 
-## 负向约束
+## Negative constraints
 
 ```text
-避免主体身份漂移、额外肢体、结构畸变、文字乱码、过度锐化、严重闪烁、镜头瞬移、背景突变。
+Avoid identity drift, extra limbs, structural deformation, unreadable text,
+over-sharpening, severe flicker, camera teleportation, and abrupt background changes.
 ```
 
-## 镜头提示词
+## Shot prompts
 
 ### S001
 
 ```text
-[主体与场景] + [动作] + [镜头运动] + [构图] + [光线] + [风格] + [时序约束]
+[subject and scene] + [action] + [camera motion] + [composition] + [lighting] + [style] + [temporal constraints]
 ```
 
-- 输入素材：
-- 需要保持：
-- 允许变化：
-- 建议种子：
-- 结果记录：
+- Input assets:
+- Must remain stable:
+- Allowed to change:
+- Suggested seed:
+- Result notes:
 
-> 为每个镜头复制本节，并与 shots.csv 的 shot_id 保持一致。
+> Duplicate this section for each shot and keep the heading aligned with shot_id in shots.csv.
 """
     path.write_text(content, encoding="utf-8")
 
