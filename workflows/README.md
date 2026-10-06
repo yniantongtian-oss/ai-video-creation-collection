@@ -1,28 +1,28 @@
-# ComfyUI 工作流包
+# ComfyUI Workflow Pack
 
-本目录提供三套 Wan2.2 工作流。它们只使用 ComfyUI 核心节点，不要求额外安装第三方自定义节点。
+This directory provides three Wan2.2 workflows using only ComfyUI core nodes, with no additional third-party custom nodes required.
 
-## 工作流
+## Workflows
 
-| 文件 | 用途 | 默认输出 |
+| File | Purpose | Default output |
 |---|---|---|
-| `wan22_t2v_4step.json` | 文生视频，Wan2.2 双阶段 4-step LoRA | 81 帧，16 fps，约 5 秒 |
-| `wan22_i2v_4step.json` | 参考图首帧驱动的图生视频 | 81 帧，16 fps，约 5 秒 |
-| `wan22_long_video_3shot.json` | 三镜头连续续写与自动拼接 | 241 帧，16 fps，约 15.1 秒 |
+| `wan22_t2v_4step.json` | Text-to-video with the Wan2.2 two-stage 4-step LoRA route | 81 frames, 16 fps, about 5 seconds |
+| `wan22_i2v_4step.json` | Image-to-video driven by a reference first frame | 81 frames, 16 fps, about 5 seconds |
+| `wan22_long_video_3shot.json` | Three-shot continuation with automatic assembly | 241 frames, 16 fps, about 15.1 seconds |
 
-长视频工作流的无损源文件保存为 `wan22_long_video_3shot.json.gz`。克隆仓库后先运行：
+The lossless source for the long workflow is stored as `wan22_long_video_3shot.json.gz`. After cloning, run:
 
 ```bash
 python scripts/materialize_workflows.py
 ```
 
-脚本会生成标准的 `workflows/wan22_long_video_3shot.json`，随后即可通过 ComfyUI **Load** 导入。它不会覆盖内容不同的现有 JSON，除非显式加 `--force`。
+This creates `workflows/wan22_long_video_3shot.json` for import through ComfyUI **Load**. It will not overwrite a different existing JSON unless `--force` is supplied.
 
-长视频工作流不是三个互不相关的片段：第 1、2 镜头的最后一帧会分别作为下一镜头的首帧，并在最终拼接时删除第 2、3 镜头重复的边界帧。
+The long workflow is not three unrelated clips: the final frame of shots 1 and 2 becomes the first frame of the next shot, and duplicate boundary frames are removed during final assembly.
 
-## 环境要求
+## Environment requirements
 
-需要包含以下核心节点的较新 ComfyUI：
+Use a recent ComfyUI build that provides:
 
 - `UNETLoader`
 - `CLIPLoader`
@@ -36,13 +36,13 @@ python scripts/materialize_workflows.py
 - `ImageFromBatch`
 - `ImageBatch`
 
-工作流默认使用 Wan2.2 14B FP8 双模型和 4-step LoRA。实际显存占用与生成速度取决于 ComfyUI 版本、offload、分辨率、帧数、系统内存和显卡，不保证某个固定显存容量一定能够运行。
+The workflows use Wan2.2 14B FP8 dual models and 4-step LoRAs by default. Actual VRAM use and speed depend on the ComfyUI version, offload strategy, resolution, frame count, system RAM, and GPU. No fixed VRAM capacity is guaranteed.
 
-节点与模型文件名在 2026-07-28 对照 ComfyUI 官方 Wan2.2 blueprints 检查，来源记录见 `models.json`。
+Node and model filenames were checked against official ComfyUI Wan2.2 blueprints on 2026-07-28. Provenance is recorded in `models.json`.
 
-## 一键准备模型
+## Prepare models
 
-先查看下载计划：
+Preview the download plan:
 
 ```bash
 python scripts/download_workflow_models.py \
@@ -51,7 +51,7 @@ python scripts/download_workflow_models.py \
   --dry-run
 ```
 
-确认路径、网络和磁盘空间后下载：
+After checking paths, connectivity, and disk space:
 
 ```bash
 python scripts/download_workflow_models.py \
@@ -59,19 +59,19 @@ python scripts/download_workflow_models.py \
   --comfyui /path/to/ComfyUI
 ```
 
-下载脚本不会覆盖同名文件；只有使用 `--force` 才会重新下载。模型权重体积很大，运行前应核对上游条款和剩余磁盘空间。
+The downloader does not overwrite files with the same name unless `--force` is used. Model weights are large; review upstream terms and available disk space first.
 
-## 导入步骤
+## Import
 
-1. 克隆或下载本仓库。
-2. 运行 `python scripts/materialize_workflows.py` 展开长视频工作流。
-3. 根据 `models.json` 放置模型，或运行下载脚本。
-4. 打开 ComfyUI，使用 **Load** 加载对应 JSON。
-5. I2V 或长视频工作流需要参考图：放入 `ComfyUI/input/start.png`，或在 `Load Image` 节点重新上传。
-6. 先保持 640×640、81 帧和默认采样设置生成最小样片。
-7. 通过后再调整提示词、宽高、帧数、种子和镜头数量。
+1. Clone or download the repository.
+2. Run `python scripts/materialize_workflows.py`.
+3. Place models according to `models.json`, or use the downloader.
+4. Open ComfyUI and load the relevant JSON with **Load**.
+5. I2V and long-video workflows need a reference image at `ComfyUI/input/start.png`, or upload another image in the Load Image node.
+6. Keep the initial test at 640×640, 81 frames, and default sampling settings.
+7. After validation, adjust prompts, dimensions, frame count, seed, and shot count.
 
-## 模型目录
+## Model directories
 
 ```text
 ComfyUI/
@@ -92,44 +92,44 @@ ComfyUI/
         └── wan_2.1_vae.safetensors
 ```
 
-## 参数说明
+## Parameters
 
-### 分辨率
+### Resolution
 
-默认 `640×640` 是验证规格。宽高通常保持 16 的倍数。出现 OOM 时先降分辨率或帧数，再考虑 offload、量化和其他上游支持的优化方式。
+`640×640` is a validation target. Keep width and height on supported multiples, typically 16. On OOM, reduce resolution or frame count before trying offload, quantization, or other upstream-supported optimizations.
 
-### 帧数与时长
+### Frame count and duration
 
-默认 81 帧、16 fps：
+At 81 frames and 16 fps:
 
 ```text
-81 ÷ 16 ≈ 5.06 秒
+81 / 16 ≈ 5.06 seconds
 ```
 
-Wan 视频潜空间通常使用符合 `4n+1` 的帧数，例如 49、65、81。调整前仍应核对当前节点与模型支持范围。
+Wan latent video commonly uses frame counts compatible with `4n+1`, such as 49, 65, or 81. Verify the current model and node limits before changing them.
 
-### 双阶段采样
+### Two-stage sampling
 
-三套工作流均采用：
+All three workflows use:
 
-- 高噪声模型：步骤 0–2，保留剩余噪声。
-- 低噪声模型：步骤 2–4，不重新加噪。
-- CFG：1。
-- Sampler：Euler。
-- Scheduler：simple。
-- ModelSamplingSD3 shift：5。
+- high-noise model: steps 0–2, keep remaining noise;
+- low-noise model: steps 2–4, do not add fresh noise;
+- CFG: 1;
+- sampler: Euler;
+- scheduler: simple;
+- ModelSamplingSD3 shift: 5.
 
-不要只修改一个采样器的总步数或分界点；两阶段设置必须保持一致。
+Do not change only one sampler's total steps or boundary; keep the two stages consistent.
 
-## 长视频注意事项
+## Long-video notes
 
-- 每次末帧续写都会累积主体、构图和背景漂移。
-- 镜头提示词应同时写清“必须保持不变的内容”和“允许变化的动作”。
-- 镜头运动方向、人物朝向和光线方向应连续。
-- 三镜头模板用于验证连续生成流程，不代表一次运行就是最佳成片。
-- 正式长片仍建议配合镜头表、关键帧管理、单镜头重做、剪辑、补帧、超分、音频和字幕后期。
+- Final-frame continuation accumulates subject, composition, and background drift.
+- Prompts should state what must remain fixed and what motion may change.
+- Camera direction, subject orientation, and lighting direction should remain coherent across shots.
+- The three-shot template validates the continuation pipeline; it is not automatically an optimal final edit.
+- Longer productions should still use shot planning, keyframe management, per-shot reruns, editing, interpolation, upscaling, audio, and subtitle post-production.
 
-## 校验
+## Validation
 
 ```bash
 python scripts/materialize_workflows.py
@@ -137,10 +137,10 @@ python scripts/validate_workflows.py
 python -m py_compile scripts/*.py
 ```
 
-校验脚本检查 JSON、节点 ID、连接 ID、输入输出槽位、模型文件引用和必需工作流。它不能替代真实 GPU 推理测试。
+Validation checks JSON, node IDs, link IDs, slots, model references, and required workflows. It does not replace real GPU inference.
 
-## 上游与许可
+## Upstream and licensing
 
-- ComfyUI 代码与节点：以上游许可证为准。
-- Wan2.2 代码和模型权重：以 Wan2.2 仓库、模型卡及具体权重条款为准。
-- 本仓库的 MIT 许可证不自动覆盖第三方模型权重、生成素材、音乐、人物肖像或商标。
+- ComfyUI code and nodes: follow upstream licenses.
+- Wan2.2 code and model weights: follow the Wan2.2 repository, model cards, and weight-specific terms.
+- This repository's MIT license does not automatically cover third-party model weights, generated media, music, likeness rights, or trademarks.
