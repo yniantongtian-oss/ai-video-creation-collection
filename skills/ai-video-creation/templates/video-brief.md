@@ -1,99 +1,99 @@
-# {{PROJECT_NAME}} — AI 视频制作 Brief
+# {{PROJECT_NAME}} — AI Video Production Brief
 
-## 项目目标
+## Project goals
 
-- 用途：
-- 目标受众：
-- 核心信息：
-- 发布平台：
-- 是否商用：
+- Purpose:
+- Target audience:
+- Core message:
+- Distribution platform:
+- Commercial use:
 
-## 交付规格
+## Delivery specification
 
-- 总时长：
-- 单镜头时长：
-- 画面比例：
-- 分辨率：
-- 帧率：
-- 输出格式：
-- 截止时间：
+- Total duration:
+- Shot duration:
+- Aspect ratio:
+- Resolution:
+- Frame rate:
+- Output format:
+- Deadline:
 
-## 生成模式
+## Generation mode
 
-- [ ] 文生视频（T2V）
-- [ ] 图生视频（I2V）
-- [ ] 视频生视频（V2V）
-- [ ] 视频续写
-- [ ] 多镜头混合流程
+- [ ] Text-to-video (T2V)
+- [ ] Image-to-video (I2V)
+- [ ] Video-to-video (V2V)
+- [ ] Video continuation
+- [ ] Multi-shot mixed workflow
 
-## 输入素材
+## Input assets
 
-- 参考图：
-- 首帧/尾帧：
-- 角色设定：
-- 产品图：
-- 已有视频：
-- 音频/旁白：
-- 字幕/文案：
+- Reference images:
+- First/last frames:
+- Character design:
+- Product images:
+- Existing video:
+- Audio/narration:
+- Subtitles/script:
 
-## 视觉设定
+## Visual direction
 
-- 主体：
-- 场景：
-- 时代/地点：
-- 美术风格：
-- 色彩：
-- 光线：
-- 镜头语言：
-- 不可变化的特征：
-- 禁止出现的元素：
+- Subject:
+- Scene:
+- Period/location:
+- Art direction:
+- Color:
+- Lighting:
+- Camera language:
+- Invariant features:
+- Prohibited elements:
 
-## 技术环境
+## Technical environment
 
-- 操作系统：
-- GPU：
-- 可用显存：
-- 内存：
-- CUDA / PyTorch：
-- ComfyUI / Diffusers：
-- 已安装节点：
-- 候选模型：
+- Operating system:
+- GPU:
+- Available VRAM:
+- RAM:
+- CUDA / PyTorch:
+- ComfyUI / Diffusers:
+- Installed nodes:
+- Candidate models:
 
-## 技术路线
+## Technical route
 
-- 主路线：
-- 选择原因：
-- 备选路线：
-- 失败切换条件：
-- 需要核验的版本与许可证：
+- Primary route:
+- Why:
+- Fallback route:
+- Failure/switch condition:
+- Versions and licenses requiring verification:
 
-## 最小验证
+## Minimal validation
 
-- 验证镜头：
-- 时长：
-- 输入素材：
-- 分辨率：
-- 帧率：
-- 固定种子：
-- 暂时关闭：
-- 通过条件：
+- Validation shot:
+- Duration:
+- Input assets:
+- Resolution:
+- Frame rate:
+- Fixed seed:
+- Temporarily disabled:
+- Pass criteria:
 
-## 镜头表
+## Shot list
 
-| 镜头 | 时长 | 画面 | 动作 | 镜头运动 | 输入素材 | 模式 | 状态 |
+| Shot | Duration | Visual | Action | Camera motion | Input asset | Mode | Status |
 |---|---:|---|---|---|---|---|---|
 | S001 |  |  |  |  |  |  | planned |
 
-## 验收标准
+## Acceptance criteria
 
-- [ ] 主体身份、产品结构和服装稳定。
-- [ ] 动作和镜头运动连续。
-- [ ] 无不可接受的闪烁、重影、畸变或文字乱码。
-- [ ] 时长、比例、分辨率、帧率和编码正确。
-- [ ] 音频、字幕和画面同步。
-- [ ] 模型、版本、种子、提示词和输入素材可追溯。
-- [ ] 代码、权重、素材和输出的授权条件已确认。
+- [ ] Identity, product structure, and wardrobe remain stable.
+- [ ] Subject and camera motion are continuous.
+- [ ] No unacceptable flicker, ghosting, deformation, or unreadable text.
+- [ ] Duration, aspect ratio, resolution, frame rate, and codec are correct.
+- [ ] Audio, subtitles, and visuals are synchronized.
+- [ ] Model, version, seed, prompts, and input assets are traceable.
+- [ ] Licensing conditions for code, weights, media, and output are verified.
 
-## 风险与待确认项
+## Risks and open questions
 
-- 
+-
