@@ -1,119 +1,119 @@
-# 60–360 分钟长篇视频制作指南
+# 60–360 Minute Long-Form Video Production Guide
 
-本指南用于制作一小时以上的纪录片、科普、课程、历史叙事、调查解释、专题评论和多章节视频。
+This guide covers hour-plus documentaries, explainers, courses, historical narratives, investigative pieces, feature commentary, and other multi-chapter productions.
 
-长视频不能按短视频方式一次生成。正确方法是：**分章研究、分章写稿、分章配音、分章渲染，最后拼接**。
+Long-form video should not be produced as one giant short-video prompt. The recommended approach is: **research by chapter, write by chapter, narrate by chapter, render by chapter, then assemble the final program**.
 
-## 1. 为什么必须分章
+## 1. Why chapter-based production is required
 
-一条 90 分钟中文视频，按每分钟约 260 个中文字符计算，旁白约 23,400 字符；按每 10 秒更换一次主要视觉内容计算，约需要 540 个镜头段。实际项目还会包含：
+A 90-minute project can require roughly 13 chapters and about 540 visual segments if the main visual changes every 10 seconds. A real production may also include:
 
-- 数十至数百份文档；
-- 数百至上千个候选图片、视频和音频；
-- 数百条事实与来源标记；
-- 多次模型请求；
-- 多段配音和字幕；
-- 大量中间视频缓存；
-- 数十 GiB 的临时文件。
+- dozens or hundreds of source documents;
+- hundreds or thousands of candidate images, videos, and audio assets;
+- hundreds of factual claims and source references;
+- repeated model calls;
+- many narration and subtitle segments;
+- large intermediate caches;
+- tens of GiB of temporary files.
 
-因此本仓库默认把 90 分钟视频拆成约 13 章，每章约 7 分钟。任何一章失败，只重跑该章。
+The default workflow therefore splits a 90-minute project into chapters of roughly seven minutes. If one chapter fails, rerun only that chapter.
 
-## 2. 安装
+## 2. Install
 
-先安装网络研究与素材工具：
+Install research and media tools:
 
 ```bash
 python scripts/install_web_media_stack.py --profile full
 ```
 
-安装长视频专用运行环境：
+Install the long-form runtime:
 
 ```bash
 python scripts/install_longform_stack.py
 ```
 
-安装 Auto-Editor：
+Install Auto-Editor:
 
 ```bash
 python scripts/install_auto_editor.py
 ```
 
-只查看安装计划：
+Preview the long-form installation plan:
 
 ```bash
 python scripts/install_longform_stack.py --dry-run
 ```
 
-长视频运行环境安装到：
+Runtime:
 
 ```text
 tools/longform/.venv
 ```
 
-本地配置文件：
+Local configuration:
 
 ```text
 tools/longform/.env
 ```
 
-该目录和密钥不会进入 Git。
+The runtime directory and secrets are not committed to Git.
 
-## 3. 配置大模型
+## 3. Configure the language model
 
-编辑：
+Edit:
 
 ```text
 tools/longform/.env
 ```
 
-至少填写一个 OpenAI-compatible Chat Completions 服务：
+Provide an OpenAI-compatible Chat Completions endpoint:
 
 ```text
-LONGFORM_LLM_BASE_URL=https://你的服务地址/v1
-LONGFORM_LLM_API_KEY=你的密钥
-LONGFORM_LLM_MODEL=你的模型名称
+LONGFORM_LLM_BASE_URL=https://your-service.example/v1
+LONGFORM_LLM_API_KEY=your-key
+LONGFORM_LLM_MODEL=your-model
 ```
 
-长篇项目应选择：
+Prefer a model that:
 
-- 能稳定输出结构化 JSON 的模型；
-- 具有足够上下文长度；
-- 中文长文能力较强；
-- 支持较高单次输出长度；
-- 费用和速率限制可控。
+- reliably returns structured JSON;
+- provides sufficient context length;
+- can produce coherent long-form prose;
+- supports adequate output length;
+- has manageable pricing and rate limits.
 
-密钥不能写进项目文案、日志、README 或提交记录。
+Never place secrets in project scripts, logs, README files, or commits.
 
-## 4. 创建项目
+## 4. Create a project
 
-90 分钟横屏纪录片：
+Example 90-minute documentary:
 
 ```bash
 python scripts/scaffold_longform_project.py \
-  --name "空间太阳能电站完整纪录片" \
-  --topic "空间太阳能电站的历史、原理、工程方案、争议与未来" \
+  --name "space-solar-power-documentary" \
+  --topic "History, principles, engineering approaches, debates, and future of space-based solar power" \
   --duration 90 \
   --chapter-minutes 7 \
   --aspect-ratio 16:9 \
-  --audience "对科技感兴趣的大众观众" \
-  --style "纪录片式科普，信息密度高但表达自然"
+  --audience "General viewers interested in technology" \
+  --style "Documentary explainer with high information density and natural narration"
 ```
 
-两小时项目：
+Example two-hour project:
 
 ```bash
 python scripts/scaffold_longform_project.py \
-  --name "两小时专题" \
-  --topic "专题主题" \
+  --name "two-hour-feature" \
+  --topic "Feature topic" \
   --duration 120 \
   --chapter-minutes 8 \
   --aspect-ratio 16:9
 ```
 
-项目目录结构：
+Project structure:
 
 ```text
-projects/<项目名称>/
+projects/<project-name>/
 ├── brief.md
 ├── project.json
 ├── research/
@@ -140,110 +140,79 @@ projects/<项目名称>/
 └── outputs/
 ```
 
-## 5. 准备研究资料
+## 5. Prepare research material
 
-把以下内容放进：
+Place source material in:
 
 ```text
-projects/<项目名称>/research/inbox/
+projects/<project-name>/research/inbox/
 ```
 
-支持：
+Supported inputs include PDF, DOCX, PPTX, TXT, Markdown, HTML, CSV, TSV, JSON, SRT, VTT, and extracted web documents.
 
-- PDF；
-- DOCX；
-- PPTX；
-- TXT、Markdown；
-- HTML；
-- CSV、TSV、JSON；
-- SRT、VTT 字幕；
-- 网页提取后的文档。
+A balanced research set should include authoritative primary sources, original papers or technical reports, standards or policy documents where relevant, institutional or archival material, high-quality journalism for background, expert interviews, user notes, and credible counterarguments. Do not collect only material that supports one conclusion.
 
-建议资料组合：
-
-- 官方机构文档；
-- 原始论文和技术报告；
-- 法律、政策和标准文件；
-- 博物馆、档案馆和大学资料；
-- 可信新闻机构的背景报道；
-- 专家演讲或采访字幕；
-- 用户自己的笔记、提纲和历史资料；
-- 反方观点和争议来源。
-
-不要只收集支持单一结论的资料。
-
-### 网页资料
-
-可先使用现有工具提取：
+To ingest a web document:
 
 ```bash
 python scripts/ingest_authorized_source.py \
   --type document \
   --url "https://example.com/article" \
-  --project "projects/<项目名称>" \
+  --project "projects/<project-name>" \
   --asset-id "source-example" \
   --license "reference-only" \
   --rights-status restricted
 ```
 
-研究引用权和媒体再利用权是两件事。网页可以用于事实研究，不代表网页中的图片或视频可以直接进入成片。
+Research use and media-reuse rights are separate. A web page may support factual research without granting reuse rights for its images or video.
 
-## 6. 建立语料库
+## 6. Build the research corpus
 
 ```bash
 python scripts/ingest_longform_corpus.py \
-  --project "projects/<项目名称>"
+  --project "projects/<project-name>"
 ```
 
-指定额外资料目录：
+Add external directories:
 
 ```bash
 python scripts/ingest_longform_corpus.py \
-  --project "projects/<项目名称>" \
+  --project "projects/<project-name>" \
   --input "/path/to/documents" \
   --input "/path/to/subtitles"
 ```
 
-重新建立索引：
+Rebuild the index:
 
 ```bash
 python scripts/ingest_longform_corpus.py \
-  --project "projects/<项目名称>" \
+  --project "projects/<project-name>" \
   --reset-index
 ```
 
-脚本会：
+The ingester calculates SHA-256 hashes, skips duplicates, preserves page or slide references, extracts text, chunks content with overlap, writes JSONL, and builds a SQLite full-text index.
 
-1. 计算 SHA-256；
-2. 跳过重复文件；
-3. PDF 按页保留定位；
-4. PPTX 按幻灯片保留定位；
-5. 提取正文；
-6. 按约 2,200 字符切块并保留重叠上下文；
-7. 写入 JSONL；
-8. 建立 SQLite 全文检索索引。
+Scanned PDFs without a text layer require OCR before ingestion. Do not treat an empty extraction as successfully read content.
 
-扫描版 PDF 无可提取文字时，需要先进行 OCR。不要假装已经读取空白页面。
-
-## 7. 生成研究摘要、大纲、长文案和镜头表
+## 7. Generate summaries, outline, scripts, and shot plans
 
 ```bash
 python scripts/run_longform_project.py \
-  --project "projects/<项目名称>" \
+  --project "projects/<project-name>" \
   research
 ```
 
-处理顺序：
+Processing order:
 
 ```text
-逐来源摘要
-→ 全片章节大纲
-→ 每章独立检索相关资料
-→ 每章独立写稿
-→ 每章独立生成镜头表
+Per-source summaries
+→ full-program chapter outline
+→ per-chapter retrieval
+→ per-chapter script
+→ per-chapter shot plan
 ```
 
-主要产物：
+Main outputs:
 
 ```text
 research/summaries/*.md
@@ -256,438 +225,377 @@ chapters/*/open-questions.json
 chapters/*/shots.json
 ```
 
-`script.md` 会保留：
+`script.md` preserves source markers such as:
 
 ```text
 [S:source-id#page=12;chunk=3]
 ```
 
-`narration.txt` 则是不朗读来源标记的旁白稿。
+`narration.txt` contains the spoken text without those markers.
 
-### 只重写某一章
+Rewrite one chapter:
 
 ```bash
 python scripts/longform_pipeline.py \
-  --project "projects/<项目名称>" \
+  --project "projects/<project-name>" \
   write \
   --chapter 4 \
   --force
 ```
 
-重新生成该章镜头表：
+Rebuild that chapter's shot plan:
 
 ```bash
 python scripts/longform_pipeline.py \
-  --project "projects/<项目名称>" \
+  --project "projects/<project-name>" \
   shots \
   --chapter 4 \
   --force
 ```
 
-## 8. 素材规模规划
+## 8. Estimate asset volume
 
-按每 10 秒更换一次主要画面估算：
+A rough planning table for one major visual change every 10 seconds:
 
-| 成片时长 | 视觉段落 | 建议独立素材数 |
+| Final duration | Visual segments | Suggested distinct assets |
 |---|---:|---:|
-| 60 分钟 | 约 360 | 120–220 |
-| 90 分钟 | 约 540 | 180–320 |
-| 120 分钟 | 约 720 | 240–420 |
-| 180 分钟 | 约 1,080 | 350–600 |
+| 60 minutes | about 360 | 120–220 |
+| 90 minutes | about 540 | 180–320 |
+| 120 minutes | about 720 | 240–420 |
+| 180 minutes | about 1,080 | 350–600 |
 
-一个素材可以经过不同裁切、轻微推拉、局部放大、字幕叠加、地图标注和时间线包装后合理复用，但不能连续长时间重复。
+Reasonable reuse can include alternate crops, slow push-ins, detail zooms, captions, maps, or timeline overlays, but avoid long repetitive sequences.
 
-每章建议至少包含：
-
-- 3–8 个视频 B-roll；
-- 5–15 张档案、照片、地图、文档页或示意图；
-- 必要的数据图和时间线；
-- 章节标题卡；
-- 1–2 个视觉记忆点。
-
-## 9. 生成素材搜索计划
+## 9. Build the asset search plan
 
 ```bash
 python scripts/build_longform_asset_plan.py \
-  --project "projects/<项目名称>"
+  --project "projects/<project-name>"
 ```
 
-默认会把数百个镜头查询去重为每章约 12 个搜索组。
-
-执行开放素材搜索：
+Execute open-media search:
 
 ```bash
 python scripts/run_longform_project.py \
-  --project "projects/<项目名称>" \
+  --project "projects/<project-name>" \
   assets \
   --execute-search \
   --download-first 1
 ```
 
-`--download-first 1` 表示每个平台、每个查询先下载一个候选，避免一次下载几千个文件。
-
-需要增加候选：
+Increase candidate volume only when needed:
 
 ```bash
 python scripts/run_longform_project.py \
-  --project "projects/<项目名称>" \
+  --project "projects/<project-name>" \
   assets \
   --execute-search \
   --download-first 3 \
   --search-limit 12
 ```
 
-来源包括：
+Supported discovery providers include Wikimedia Commons, Openverse, Pexels, and Pixabay.
 
-- Wikimedia Commons；
-- Openverse；
-- Pexels；
-- Pixabay。
+Automatically downloaded items are candidates only and are not approved for final use by default.
 
-自动下载内容全部为候选，默认不能进入成片。
-
-## 10. 添加用户自己的素材
+## 10. Add user-owned media
 
 ```bash
 python scripts/media_asset_manifest.py add \
-  --manifest "projects/<项目名称>/manifests/assets.jsonl" \
+  --manifest "projects/<project-name>/manifests/assets.jsonl" \
   --id "my-interview-001" \
   --kind video \
   --local-path "assets/global/videos/interview.mp4" \
   --license "User owned" \
   --rights-status user-owned \
-  --permission-note "由项目成员拍摄，受访者已同意用于本视频" \
-  --title "专家采访"
+  --permission-note "Recorded by the project team and cleared for this production" \
+  --title "Expert interview"
 ```
 
-用户自有素材必须写清楚所有权或授权说明。
+User-owned media should include clear ownership or permission notes.
 
-## 11. 审核并批准候选素材
+## 11. Review and approve candidate assets
 
-列出候选：
+List candidates:
 
 ```bash
 python scripts/media_asset_manifest.py list \
-  --manifest "projects/<项目名称>/manifests/assets.jsonl" \
+  --manifest "projects/<project-name>/manifests/assets.jsonl" \
   --candidates
 ```
 
-批准：
+Approve one item:
 
 ```bash
 python scripts/media_asset_manifest.py set-selected \
-  --manifest "projects/<项目名称>/manifests/assets.jsonl" \
+  --manifest "projects/<project-name>/manifests/assets.jsonl" \
   --id "asset-id" \
   --value true \
-  --note "已核对内容、来源页、许可证和署名要求"
+  --note "Verified content, source page, license, and attribution requirements"
 ```
 
-批量批准：
+Bulk approval:
 
 ```bash
 python scripts/media_asset_manifest.py set-selected \
-  --manifest "projects/<项目名称>/manifests/assets.jsonl" \
+  --manifest "projects/<project-name>/manifests/assets.jsonl" \
   --ids-file approved-assets.txt \
   --value true
 ```
 
-批准动作会检查：
+Approval checks file existence, SHA-256 integrity, rights status, HTTPS provenance for non-local assets, attribution metadata for CC BY/CC BY-SA, and permission notes for user-owned or separately licensed media.
 
-- 文件存在；
-- SHA-256 未变化；
-- 许可证允许；
-- 非本地素材具有 HTTPS 来源页；
-- CC BY / CC BY-SA 包含作者和许可证地址；
-- 用户自有或单独授权素材包含许可说明。
-
-## 12. 配音
+## 12. Narration
 
 ```bash
 python scripts/render_longform_narration.py \
-  --project "projects/<项目名称>"
+  --project "projects/<project-name>"
 ```
 
-默认使用：
-
-```text
-zh-CN-XiaoxiaoNeural
-```
-
-修改音色：
+Use an appropriate available voice for the target language and audience:
 
 ```bash
 python scripts/render_longform_narration.py \
-  --project "projects/<项目名称>" \
-  --voice zh-CN-YunxiNeural
+  --project "projects/<project-name>" \
+  --voice en-US-JennyNeural
 ```
 
-只重做第四章：
+Rerun one chapter:
 
 ```bash
 python scripts/render_longform_narration.py \
-  --project "projects/<项目名称>" \
+  --project "projects/<project-name>" \
   --chapter 4 \
   --force
 ```
 
-每章文案会自动拆成多个配音片段，并生成对应字幕。失败时只重试失败片段。
+Each chapter is split into narration segments with aligned subtitles. Failed segments can be retried independently.
 
-## 13. 构建时间线
+## 13. Build the timeline
 
 ```bash
 python scripts/build_longform_timeline.py \
-  --project "projects/<项目名称>"
+  --project "projects/<project-name>"
 ```
 
-脚本只使用已经批准的图片和视频素材，并根据：
+The timeline builder uses only approved media and matches assets using shot queries, narration keywords, titles/descriptions, media type, chapter assignment, and recent reuse.
 
-- 镜头检索词；
-- 旁白关键词；
-- 素材标题和说明；
-- 素材类型；
-- 所属章节；
-- 最近使用次数；
-
-自动匹配素材。
-
-素材不足时默认失败。只有内部预览可以显式使用：
+If approved media is insufficient, the pipeline should fail. For internal previews only:
 
 ```bash
 python scripts/build_longform_timeline.py \
-  --project "projects/<项目名称>" \
+  --project "projects/<project-name>" \
   --allow-placeholders
 ```
 
-占位镜头不能进入最终发布版。
+Placeholders must never appear in a final release.
 
-## 14. 分章渲染
+## 14. Render chapters
 
 ```bash
 python scripts/render_longform_chapters.py \
-  --project "projects/<项目名称>"
+  --project "projects/<project-name>"
 ```
 
-流程：
+Process:
 
 ```text
-每个镜头转为统一规格缓存
-→ 镜头无损拼接成章节画面
-→ 混合旁白和可选背景音乐
-→ 写入字幕轨
-→ 输出章节 MP4
+Normalize each shot to the target format
+→ concatenate shot visuals
+→ mix narration and optional licensed background music
+→ write subtitle track
+→ output chapter MP4
 ```
 
-只重做第四章：
+Rerun chapter four:
 
 ```bash
 python scripts/render_longform_chapters.py \
-  --project "projects/<项目名称>" \
+  --project "projects/<project-name>" \
   --chapter 4 \
   --force
 ```
 
-烧录字幕：
+Burn subtitles when required:
 
 ```bash
 python scripts/render_longform_chapters.py \
-  --project "projects/<项目名称>" \
+  --project "projects/<project-name>" \
   --burn-subtitles
 ```
 
-指定背景音乐：
+Add licensed background music:
 
 ```bash
 python scripts/render_longform_chapters.py \
-  --project "projects/<项目名称>" \
+  --project "projects/<project-name>" \
   --bgm "/path/to/licensed-bgm.mp3"
 ```
 
-背景音乐也必须具有清晰授权。
+Background music must have clear reuse rights.
 
-## 15. 最终拼接
+## 15. Assemble the final program
 
 ```bash
 python scripts/assemble_longform_video.py \
-  --project "projects/<项目名称>"
+  --project "projects/<project-name>"
 ```
 
-输出：
+Outputs:
 
 ```text
-outputs/final/<项目名称>.mp4
+outputs/final/<project-name>.mp4
 outputs/final/full.srt
 outputs/final/youtube-chapters.txt
 outputs/final/chapters.ffmetadata
 outputs/final/assembly-report.json
 ```
 
-默认优先使用无损流复制拼接。如果章节参数不一致，则自动回退到重编码。
+Lossless stream-copy concatenation is preferred when chapter parameters match; otherwise the pipeline falls back to re-encoding.
 
-## 16. 一条命令生产
+## 16. Production command
 
-素材已经审核批准后：
+After assets are reviewed and approved:
 
 ```bash
 python scripts/run_longform_project.py \
-  --project "projects/<项目名称>" \
+  --project "projects/<project-name>" \
   produce
 ```
 
-它会执行：
+This runs:
 
 ```text
-版权和资源预检
-→ 分章配音
-→ 分章时间线
-→ 分章渲染
-→ 最终拼接
+Rights and resource preflight
+→ per-chapter narration
+→ per-chapter timeline
+→ per-chapter render
+→ final assembly
 ```
 
-素材未审核时会停止并返回：
+If asset review is incomplete, the pipeline stops with:
 
 ```text
 LONGFORM_NEEDS_ASSET_REVIEW
 ```
 
-这是正常的安全闸门，不是程序故障。
+This is an intentional safety gate.
 
-## 17. 从头执行
+## 17. Full run from research input
 
-资料已放入 `research/inbox/` 后：
+After populating `research/inbox/`:
 
 ```bash
 python scripts/run_longform_project.py \
-  --project "projects/<项目名称>" \
+  --project "projects/<project-name>" \
   all \
   --execute-search \
   --download-first 1
 ```
 
-该命令会在素材审核闸门处停止。审核并批准素材后运行：
+The run stops at the asset-review gate. After approval, run `produce`.
+
+## 18. Status and checkpoints
 
 ```bash
 python scripts/run_longform_project.py \
-  --project "projects/<项目名称>" \
-  produce
-```
-
-## 18. 状态与断点
-
-```bash
-python scripts/run_longform_project.py \
-  --project "projects/<项目名称>" \
+  --project "projects/<project-name>" \
   status
 ```
 
-状态文件：
+State files:
 
 ```text
 state/pipeline.json
-chapters/<编号>/status.json
+chapters/<number>/status.json
 ```
 
-默认跳过已经存在且有效的：
+Valid existing summaries, outlines, chapter scripts, shot plans, narration segments, shot caches, rendered chapters, and final outputs are skipped by default. Use `--force` only when necessary.
 
-- 来源摘要；
-- 大纲；
-- 章节文案；
-- 镜头表；
-- 配音片段；
-- 镜头缓存；
-- 章节视频；
-- 最终成片。
+## 19. Preflight checks
 
-不要随意使用 `--force`。
-
-## 19. 预检
-
-开始研究前：
+Before research:
 
 ```bash
 python scripts/longform_preflight.py \
-  --project "projects/<项目名称>" \
+  --project "projects/<project-name>" \
   --stage setup
 ```
 
-渲染前：
+Before rendering:
 
 ```bash
 python scripts/longform_preflight.py \
-  --project "projects/<项目名称>" \
+  --project "projects/<project-name>" \
   --stage render
 ```
 
-最终拼接前：
+Before final assembly:
 
 ```bash
 python scripts/longform_preflight.py \
-  --project "projects/<项目名称>" \
+  --project "projects/<project-name>" \
   --stage final
 ```
 
-预检会估算：
+Preflight checks estimate final size and temporary storage, inspect free disk space, verify script and shot completeness, validate asset rights, detect placeholders, compare narration and chapter timing, and count rendered chapters.
 
-- 最终文件大小；
-- 推荐临时空间；
-- 当前可用磁盘；
-- 文案和镜头完整度；
-- 素材许可证；
-- 占位镜头；
-- 配音和章节时长；
-- 已渲染章节数量。
+## 20. Storage and performance
 
-## 20. 硬盘与性能建议
+For a 90-minute 1080p project, allow several times the expected final file size for source media, caches, intermediate chapters, and retries, plus separate space for models.
 
-90 分钟、8 Mbps 视频加 192 kbps 音频，最终 MP4 通常约数 GiB；考虑原始素材、镜头缓存、章节成片和失败重试，建议至少预留最终文件预计大小的 4–5 倍，再额外预留模型和素材空间。
+Recommended:
 
-建议：
+- keep active projects on SSD storage;
+- separate source-media storage from caches when possible;
+- test one chapter before rendering the full project;
+- use faster encoding presets during iteration;
+- avoid storing video or audio inside the Git repository;
+- regularly back up `project.json`, research material, scripts, shot plans, and asset manifests.
 
-- 项目放在 SSD；
-- 原始素材和项目缓存分盘；
-- 1080p 项目先使用 `medium` 或 `fast` 预设；
-- 先渲染一章验证风格和参数；
-- 最终确认后再批量渲染所有章节；
-- 不建议在 Git 仓库存储视频和音频；
-- 重要项目定期备份 `project.json`、研究资料、文案、镜头表和素材清单。
+## 21. Final quality checklist
 
-## 21. 质量验收
+Before release, verify at minimum:
 
-最终发布前至少检查：
+1. Total duration is correct.
+2. Chapter order and transitions are correct.
+3. Scripts do not contain obvious repetition.
+4. Important factual claims have sources.
+5. All `NEEDS_SOURCE` markers are resolved.
+6. Names, dates, locations, numbers, and quotations are verified.
+7. Visuals match the narration.
+8. No incorrect people, places, periods, or equipment appear.
+9. No unapproved or unknown-source media remains.
+10. Required attribution is complete.
+11. There are no long black frames, accidental stills, or excessive repetition.
+12. Narration volume is consistent.
+13. Background music does not mask speech.
+14. Subtitle timing and segmentation are reviewed.
+15. Chapter timestamps are correct.
+16. `assembly-report.json` passes duration checks.
+17. The opening, middle, ending, and chapter boundaries are spot-checked.
+18. Platform and commercial-use rules are reviewed before upload.
 
-1. 总时长符合要求；
-2. 章节顺序和转场正确；
-3. 文案无明显重复；
-4. 所有关键事实有来源；
-5. `NEEDS_SOURCE` 已处理；
-6. 人名、时间、地点、数字和引语已复核；
-7. 画面与旁白语义匹配；
-8. 无错误人物、地点、年代或设备；
-9. 无未批准和来源不明素材；
-10. CC 署名完整；
-11. 无长时间黑屏、静帧和重复画面；
-12. 配音音量统一；
-13. 背景音乐不遮盖旁白；
-14. 字幕无明显断句和时间错位；
-15. 章节时间戳正确；
-16. `assembly-report.json` 时长检查通过；
-17. 抽查开头、中段、结尾和每章交界；
-18. 上传前再核对平台规则和商业授权。
-
-## 22. 推荐给 Codex 的完整指令
+## 22. Example Codex instruction
 
 ```text
-加载 skills/longform-documentary-producer。
+Load skills/longform-documentary-producer.
 
-围绕“<主题>”制作一部 90 分钟中文 16:9 长篇纪录片。
-先建立长视频项目，读取 research/inbox 中全部资料，建立带 SHA-256、页码和幻灯片定位的语料库。
-逐来源摘要后设计约 13 章的大纲，再逐章检索、逐章写稿、逐章生成镜头表。
-关键事实必须保留来源标记，资料不足写 NEEDS_SOURCE，不得猜测。
+Produce a 90-minute 16:9 documentary about <topic>.
+Create the project first and ingest everything in research/inbox into a corpus that preserves
+SHA-256 hashes, page numbers, and slide references. Summarize each source, design a roughly
+13-chapter outline, then retrieve, write, and build a shot plan for each chapter separately.
+Important factual claims must retain source markers. Write NEEDS_SOURCE when evidence is
+insufficient instead of guessing.
 
-从 Wikimedia Commons、Openverse、Pexels、Pixabay 和用户自有素材中寻找图片、视频和音频。
-自动下载内容只能作为候选，必须查看内容、来源页和许可证后才能标记 selected=true。
-来源不明、restricted 或 unknown 素材不得进入成片。
+Find images, video, and audio from Wikimedia Commons, Openverse, Pexels, Pixabay, and user-owned
+sources. Automatically downloaded media is candidate-only until its content, source page, and
+license are reviewed and selected=true is explicitly approved. Unknown or restricted assets
+must not enter the final program.
 
-审核完成后逐章生成配音和字幕，逐章匹配素材并渲染；一章失败只重跑该章。
-最终拼接完整 MP4，生成 full.srt、YouTube 章节时间戳、章节元数据、文案、镜头表、事实清单、素材许可清单和 assembly-report.json。
-没有实际生成最终 MP4 时，不得声称成片已完成。
+After review, generate narration and subtitles by chapter, match approved media, and render each
+chapter independently. If one chapter fails, rerun only that chapter. Assemble the final MP4 and
+deliver full.srt, chapter timestamps, chapter metadata, scripts, shot plans, factual-claim records,
+the media-rights manifest, and assembly-report.json. Do not claim the final program exists unless
+the final MP4 was actually generated.
 ```
