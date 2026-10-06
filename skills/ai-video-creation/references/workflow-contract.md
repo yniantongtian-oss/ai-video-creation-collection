@@ -1,123 +1,122 @@
-# 标准工作流交付规范
+# Standard Workflow Delivery Contract
 
-AI 视频方案必须让其他人能够继续执行，而不是只给模型名称或一段提示词。
+An AI-video plan should be executable by another person, not just a model name and a prompt.
 
-## 1. 需求摘要
-
-```text
-项目：
-目标：
-受众/平台：
-总时长：
-画面比例：
-目标分辨率与帧率：
-生成模式：T2V / I2V / V2V / continuation / mixed
-输入素材：
-视觉风格：
-声音与字幕：
-硬件与环境：
-商用要求：
-明确假设：
-```
-
-## 2. 技术路线
+## 1. Requirements summary
 
 ```text
-主路线：
-选择原因：
-备选路线：
-切换到备选路线的条件：
-需要核验的版本/权重/许可证：
+Project:
+Goal:
+Audience/platform:
+Total duration:
+Aspect ratio:
+Target resolution and frame rate:
+Generation mode: T2V / I2V / V2V / continuation / mixed
+Input assets:
+Visual style:
+Audio and subtitles:
+Hardware and environment:
+Commercial-use requirements:
+Explicit assumptions:
 ```
 
-不得只写“推荐某模型”。必须解释它与任务约束的对应关系。
-
-## 3. 最小验证
-
-先定义一个低成本、可判定成功或失败的实验：
+## 2. Technical route
 
 ```text
-验证镜头：S001
-时长：2–5 秒
-输入：
-分辨率：
-帧率：
-固定种子：
-关闭项：超分 / 补帧 / 非必要 LoRA / 非必要 Control
-通过条件：
-失败后首先调整：
+Primary route:
+Why:
+Fallback route:
+Condition for switching:
+Versions/weights/licenses still requiring verification:
 ```
 
-## 4. 镜头表
+Do not merely write "recommended model." Explain how the choice maps to the project constraints.
 
-推荐字段：
+## 3. Minimal validation
 
-| 字段 | 含义 |
+Define a low-cost experiment with clear pass/fail criteria:
+
+```text
+Validation shot: S001
+Duration: 2–5 seconds
+Input:
+Resolution:
+Frame rate:
+Fixed seed:
+Disabled: upscaling / interpolation / unnecessary LoRA / unnecessary Control
+Pass criteria:
+First adjustment after failure:
+```
+
+## 4. Shot list
+
+Recommended fields:
+
+| Field | Meaning |
 |---|---|
-| shot_id | 唯一镜头编号 |
-| start_sec | 时间线起点 |
-| duration_sec | 镜头时长 |
+| shot_id | unique shot identifier |
+| start_sec | timeline start |
+| duration_sec | shot duration |
 | mode | T2V / I2V / V2V / continuation |
-| visual | 场景与构图 |
-| action | 主体动作与时间变化 |
-| camera | 景别、机位和镜头运动 |
-| input_asset | 参考图、视频或关键帧 |
-| model | 实际使用的模型与版本 |
-| seed | 可复现种子 |
+| visual | scene and composition |
+| action | subject motion and temporal change |
+| camera | framing, position, and movement |
+| input_asset | reference image, video, or keyframe |
+| model | actual model and version |
+| seed | reproducible seed |
 | status | planned / test / approved / rejected |
-| notes | 问题、修改和验收记录 |
+| notes | issues, revisions, and approval notes |
 
-镜头之间必须检查：角色外观、服装、产品结构、光线方向、色彩、镜头轴线和运动连续性。
+Across shots, check identity, wardrobe, product structure, lighting direction, palette, screen direction, and motion continuity.
 
-## 5. 提示词包
+## 5. Prompt pack
 
-### 全局锚点
-
-在每个镜头中稳定复用的部分：
+### Global anchors
 
 ```text
-主体身份：
-外观与材质：
-服装/产品颜色：
-环境与时代：
-美术风格：
-色彩与光线：
-镜头质感：
+Subject identity:
+Appearance/material:
+Wardrobe/product color:
+Environment/period:
+Art direction:
+Color and lighting:
+Lens/camera character:
 ```
 
-### 镜头级提示词
+### Shot-level prompt
 
 ```text
-[主体] 在 [场景] 中进行 [动作]。
-镜头为 [景别/机位]，以 [镜头运动] 运动。
-光线为 [光线]，整体为 [风格]。
-从开始到结束保持 [必须稳定的元素]，仅允许 [可变化的元素]。
+[Subject] performs [action] in [scene].
+Camera: [framing/position], moving with [camera motion].
+Lighting: [lighting]. Overall style: [style].
+Keep [invariant elements] stable from start to end; allow only [permitted changes].
 ```
 
-### 负向约束
+### Negative constraints
 
-负向约束应针对实际缺陷，不要无意义堆词：
+Use defect-specific constraints rather than keyword dumping:
 
 ```text
-身份漂移、额外肢体、结构畸变、背景突变、镜头瞬移、严重闪烁、文字乱码。
+identity drift, extra limbs, structural deformation, abrupt background changes,
+camera teleportation, severe flicker, unreadable text
 ```
 
-## 6. 安装与运行
+## 6. Installation and execution
 
-安装说明必须满足：
+Installation instructions must:
 
-- 来源是当前官方文档。
-- 明确操作系统、Python、PyTorch/CUDA 前提。
-- 不混用不同教程的依赖版本。
-- 模型下载地址指向官方仓库、官方模型页或上游明确推荐的镜像。
-- 社区量化、节点或工作流标明“第三方”。
-- 密钥只从环境变量读取，不写进仓库。
+- come from current official documentation;
+- state OS, Python, and PyTorch/CUDA prerequisites;
+- avoid mixing dependency pins from unrelated tutorials;
+- point model downloads to official repositories, official model pages, or upstream-recommended mirrors;
+- label community quantizations, nodes, and workflows as third-party;
+- read secrets from environment variables instead of committing them.
 
-命令示例中，无法确认的版本使用占位符或提示用户查看上游，不得猜一个版本号。
+When a version cannot be verified, use a placeholder or tell the user to check upstream rather than inventing one.
 
-## 7. 可复现记录
+## 7. Reproducibility record
 
-每次通过的生成至少记录：
+Record at least:
 
 ```json
 {
@@ -137,42 +136,42 @@ AI 视频方案必须让其他人能够继续执行，而不是只给模型名�
 }
 ```
 
-## 8. 质量检查
+## 8. Quality control
 
-### 画面
+### Visual
 
-- 主体身份、产品结构和服装是否稳定。
-- 手、脸、文字、标志和边缘是否可接受。
-- 是否有闪烁、重影、拉伸、穿模或背景突变。
-- 镜头运动是否平滑，是否存在突然加速或瞬移。
+- Identity, product structure, and wardrobe remain stable.
+- Hands, faces, text, logos, and edges are acceptable.
+- No unacceptable flicker, ghosting, stretching, interpenetration, or background jumps.
+- Camera motion is smooth and does not abruptly accelerate or teleport.
 
-### 时间
+### Temporal
 
-- 动作是否有起点、过程和结束。
-- 镜头衔接是否违反方向、视线和空间关系。
-- 总时长、单镜头时长和节奏是否符合脚本。
+- Actions have a beginning, transition, and end.
+- Shot continuity respects direction, eyelines, and spatial relationships.
+- Total duration, shot duration, and pacing match the script.
 
-### 声音
+### Audio
 
-- 旁白、音乐、环境声和口型是否同步。
-- 是否存在削波、噪声、突变或版权风险。
+- Narration, music, ambience, and lip sync align appropriately.
+- No clipping, excessive noise, abrupt audio changes, or unreviewed rights risks.
 
-### 交付
+### Delivery
 
-- 比例、分辨率、帧率、编码和文件格式正确。
-- 字幕安全区与平台 UI 不冲突。
-- 已保留项目文件、提示词、种子和许可记录。
+- Aspect ratio, resolution, frame rate, codec, and file format are correct.
+- Subtitles avoid conflicts with platform UI safe areas.
+- Project files, prompts, seeds, and license records are preserved.
 
-## 9. 失败回退
+## 9. Fallbacks
 
-每条方案都要给至少一个回退路径，例如：
+Every plan should include at least one fallback, for example:
 
-- T2V 主体不稳定 → 先生成关键帧，再改用 I2V。
-- 长镜头漂移 → 拆为更短镜头，通过剪辑连接。
-- 显存不足 → 降帧数/分辨率/批量，再使用上游支持的 offload 或量化。
-- ComfyUI 节点冲突 → 在干净环境中只安装最小节点集。
-- 生成文字错误 → 后期叠加文字，不要求视频模型直接生成可读正文。
+- unstable T2V subject → create a keyframe and switch to I2V;
+- long-shot drift → split into shorter clips and edit them together;
+- insufficient VRAM → reduce frames/resolution/batch, then use upstream-supported offload or quantization;
+- ComfyUI node conflicts → validate in a clean environment with only the minimum node set;
+- generated text is unreadable → add text in post-production instead of asking the video model to render it.
 
-## 10. 回复边界
+## 10. Response boundary
 
-只有在实际执行工具返回成功后，才能说视频或文件已经生成。只完成规划时，应明确写成“制作方案”“待执行工作流”或“项目骨架”。
+Only say a video or file was generated after an actual tool or runtime confirms success. If only planning was completed, describe it as a production plan, pending workflow, or project scaffold.
