@@ -1,209 +1,209 @@
 ---
 name: ai-video-creation
-description: 将 AI 视频创作需求转化为可执行的本地或开源工作流。适用于文生视频、图生视频、视频续写、视频重绘、多镜头短片、角色一致性、ComfyUI 工作流、模型选型、显存优化、镜头表、提示词包和故障排查。触发后先明确任务、素材、交付规格、硬件与授权要求，再选择候选技术路线；当 Wan2.2 与 ComfyUI 适合任务时，优先复用本仓库已校验的文生视频、图生视频或三镜头连续工作流。不得虚构模型版本、仓库、节点、显存占用、生成速度或商业许可。
+description: Convert AI video creation requests into executable local or open-source workflows. Use for text-to-video, image-to-video, video-to-video, continuation, multi-shot production, character consistency, ComfyUI workflows, model selection, VRAM optimization, shot lists, prompt packs, and troubleshooting. First establish the task, source assets, delivery specification, hardware, and licensing requirements. Prefer the repository's validated Wan2.2 and ComfyUI workflows when appropriate. Never invent model versions, repositories, nodes, VRAM usage, generation speed, or commercial-use terms.
 metadata:
   version: 1.1.0
-  language: zh-CN
+  language: en-US
 ---
 
 # AI Video Creation Skill
 
-把用户的创意转换为 **可执行、可复现、可检查** 的 AI 视频制作方案。优先使用官方开源仓库、用户已有环境和本仓库已校验的工作流；无法确认的信息必须标为待核验，不得猜测。
+Turn a creative request into an **executable, reproducible, and reviewable** AI-video production plan. Prefer official upstream repositories, the user's existing environment, and validated workflows in this repository. Mark unknowns for verification instead of guessing.
 
-## 触发范围
+## Scope
 
-在用户提出以下需求时使用本 Skill：
+Use this Skill for:
 
-- 文生视频（T2V）、图生视频（I2V）、视频生视频（V2V）。
-- 视频续写、首尾帧控制、关键帧驱动、角色或产品一致性。
-- 多镜头短片、广告、剧情片段、科普视频、社交媒体视频。
-- ComfyUI 视频工作流、Diffusers 脚本、本地部署和显存优化。
-- AI 视频模型、开源库、节点、工作流或技术路线推荐。
-- OOM、缺少节点、模型路径、VAE、dtype、帧率、闪烁等故障排查。
+- text-to-video (T2V), image-to-video (I2V), and video-to-video (V2V);
+- continuation, first/last-frame control, keyframe-driven generation, and character/product consistency;
+- multi-shot shorts, ads, narrative clips, explainers, and social video;
+- ComfyUI workflows, Diffusers scripts, local deployment, and VRAM optimization;
+- recommendations for models, open-source libraries, nodes, workflows, or technical approaches;
+- troubleshooting OOM, missing nodes, model paths, VAE, dtype, frame rate, flicker, drift, and related failures.
 
-不把本 Skill 用于未经授权的人脸冒用、欺骗性深度伪造、违法内容或规避平台安全机制。
+Do not use this Skill for unauthorized impersonation, deceptive deepfakes, illegal content, or bypassing platform safeguards.
 
-## 工作原则
+## Working principles
 
-1. **先定义交付物，再选模型。** 不根据项目热度直接推荐。
-2. **官方来源优先。** 具体版本、安装命令和许可证必须以当前上游文档为准。
-3. **已有工作流优先复用。** 不重复手写已经存在且通过结构校验的节点图。
-4. **不把估算写成事实。** 显存、速度、最长时长和分辨率都受模型、量化、节点、驱动和工作流影响。
-5. **先最小验证。** 先生成 2–5 秒、较低分辨率的样片，再扩大规模。
-6. **长视频拆镜头。** 默认采用镜头表、关键帧、短片段生成、剪辑与音频后期，而不是一次生成完整长片。
-7. **交付必须可复现。** 记录模型、工作流版本、种子、分辨率、帧率、提示词、输入素材和后处理步骤。
-8. **商业使用先审许可。** 仓库许可证、代码许可证、模型权重许可证和输出使用条款可能不同。
+1. **Define the deliverable before choosing a model.**
+2. **Prefer official sources.** Verify versions, installation commands, and licenses against current upstream documentation.
+3. **Reuse validated workflows.** Do not rebuild a graph that already exists and passes structural validation.
+4. **Do not present estimates as facts.** VRAM, speed, maximum duration, and resolution depend on the model, quantization, nodes, drivers, and workflow.
+5. **Validate small first.** Generate a 2–5 second lower-resolution sample before scaling.
+6. **Split long-form work into shots.** Prefer shot lists, keyframes, short generated clips, editing, and audio post-production over one-shot generation.
+7. **Keep the workflow reproducible.** Record model, workflow version, seed, resolution, frame rate, prompts, inputs, and post-processing.
+8. **Review commercial-use terms first.** Repository, code, model-weight, and output-use terms may differ.
 
-## 第一步：建立制作 Brief
+## Step 1: Build the production brief
 
-优先从用户已有信息提取，不重复追问已经明确的内容。至少确定：
+Reuse information the user already provided. Determine at minimum:
 
-- `goal`：视频用途与核心信息。
-- `mode`：T2V、I2V、V2V、续写、角色动画或混合模式。
-- `duration`：总时长与单镜头预期时长。
-- `aspect_ratio`：如 16:9、9:16、1:1。
-- `resolution` 与 `fps`：目标值；未知时先用验证规格。
-- `assets`：参考图、首尾帧、角色设定、产品图、已有视频、音频和字幕。
-- `style`：写实、动画、电影感、广告、纪录片等。
-- `hardware`：GPU 型号、可用显存、内存、系统、CUDA/PyTorch 环境。
-- `delivery`：最终文件格式、平台、截止时间、是否商用。
+- `goal`: purpose and core message;
+- `mode`: T2V, I2V, V2V, continuation, character animation, or mixed;
+- `duration`: total length and expected shot length;
+- `aspect_ratio`: such as 16:9, 9:16, or 1:1;
+- `resolution` and `fps`: target values, or a smaller validation target;
+- `assets`: reference images, first/last frames, character sheets, product shots, existing video, audio, and subtitles;
+- `style`: realistic, animated, cinematic, commercial, documentary, and so on;
+- `hardware`: GPU, VRAM, RAM, operating system, CUDA/PyTorch environment;
+- `delivery`: final format, target platform, deadline, and commercial-use requirements.
 
-信息不足但可以安全推进时，使用明确假设并标注，不因次要信息阻塞整个方案。
+If minor information is missing but work can safely proceed, state explicit assumptions instead of blocking the plan.
 
-## 第二步：任务路由
+## Step 2: Route the task
 
 ### T2V
 
-适合概念镜头、环境、抽象画面和无严格主体一致性的短片。先写镜头级提示词，再决定模型。
+Best for concept shots, environments, abstract visuals, and scenes without strict subject consistency. Write shot-level prompts before choosing the model.
 
 ### I2V
 
-适合人物、产品、海报、角色设定或固定构图。必须说明参考图质量、期望运动、镜头运动和需要保持不变的元素。
+Best for people, products, posters, character designs, and fixed compositions. Record reference quality, desired subject motion, camera motion, and elements that must remain unchanged.
 
 ### V2V
 
-适合风格迁移、重绘、运动保持或已有素材增强。先确认是否需要保留构图、动作、人物身份、时长和音频。
+Best for stylization, redraws, motion preservation, or enhancement of existing footage. Determine whether composition, motion, identity, duration, and audio must be retained.
 
-### 多镜头或长视频
+### Multi-shot or long-form work
 
-默认流程：
+Default process:
 
 ```text
-创意目标 → 剧本/旁白 → 镜头表 → 关键帧 → 单镜头生成 → 一致性检查
-→ 补帧/超分 → 剪辑 → 配音/音乐/字幕 → 总体验收
+Creative goal → script/narration → shot list → keyframes → per-shot generation → consistency review
+→ interpolation/upscaling → edit → narration/music/subtitles → final QC
 ```
 
-不要默认使用“末帧无限续写”作为唯一方案；它可能累积构图漂移、主体变化和画质退化。
+Do not rely on indefinite last-frame continuation as the only strategy; composition drift, subject drift, and quality degradation can accumulate.
 
-## 第三步：选择技术路线
+## Step 3: Choose the technical route
 
-先查看 [`references/model-selection.md`](references/model-selection.md) 和仓库根目录的 `catalog/projects.json`。
+Read [`references/model-selection.md`](references/model-selection.md) and `catalog/projects.json` first.
 
-候选路线通常包括：
+Typical candidates include:
 
-- **ComfyUI**：需要节点式调试、复用工作流、图形化控制或 API 集成时。
-- **Wan2.2**：需要其官方支持的文生视频、图生视频或扩展任务时。
-- **LTX-Video / LTX-2**：需要其当前上游提供的关键帧、视频扩展或音视频能力时。
-- **HunyuanVideo / HunyuanVideo-1.5**：需要腾讯混元视频路线时。
-- **CogVideo**：需要 CogVideo 系列或 Diffusers 生态集成时。
-- **Open-Sora**：研究、训练或自定义完整视频生成管线时。
-- **Diffusers**：需要 Python 代码、批处理、服务化或与其他模型组件组合时。
+- **ComfyUI** for node-based debugging, reusable workflows, graphical control, or API integration.
+- **Wan2.2** for supported upstream T2V, I2V, or related tasks.
+- **LTX-Video / LTX-2** for current upstream keyframe, extension, or audio-video capabilities.
+- **HunyuanVideo / HunyuanVideo-1.5** when that ecosystem is appropriate.
+- **CogVideo** for CogVideo models or Diffusers integration.
+- **Open-Sora** for research, training, or custom full-generation pipelines.
+- **Diffusers** for Python automation, batching, services, or composition with other model components.
 
-选择结果至少包含：主路线、备选路线、选择理由、已知限制、待核验版本和许可、最小验证配置。
+The selection must include a primary route, fallback route, rationale, known limitations, versions/licenses that still require verification, and a minimal validation configuration.
 
-## 第四步：复用仓库内工作流
+## Step 4: Reuse repository workflows
 
-当任务选择 **ComfyUI + Wan2.2** 时，优先使用：
+For **ComfyUI + Wan2.2**, prefer:
 
-| 任务 | 工作流 |
+| Task | Workflow |
 |---|---|
-| 文生视频 | `../../workflows/wan22_t2v_4step.json` |
-| 图生视频 | `../../workflows/wan22_i2v_4step.json` |
-| 三镜头连续长视频 | `../../workflows/wan22_long_video_3shot.json` |
+| Text-to-video | `../../workflows/wan22_t2v_4step.json` |
+| Image-to-video | `../../workflows/wan22_i2v_4step.json` |
+| Three-shot continuous video | `../../workflows/wan22_long_video_3shot.json` |
 
-执行顺序：
+Execution order:
 
-1. 阅读 `../../workflows/README.md`。
-2. 运行 `python scripts/materialize_workflows.py`，生成三镜头标准 JSON。
-3. 运行 `python scripts/validate_workflows.py`。
-4. 依据 `../../workflows/models.json` 检查模型文件和目录。
-5. 可使用 `scripts/download_workflow_models.py` 先做 `--dry-run`，确认路径和下载计划后再下载。
-6. 将用户素材、提示词、比例、分辨率、帧数和种子写入副本，不直接破坏仓库基准模板。
-7. 先运行单镜头最小样片，再运行三镜头工作流。
+1. Read `../../workflows/README.md`.
+2. Run `python scripts/materialize_workflows.py`.
+3. Run `python scripts/validate_workflows.py`.
+4. Check required files and directories in `../../workflows/models.json`.
+5. Use `scripts/download_workflow_models.py --dry-run` before downloading.
+6. Put user assets, prompts, aspect ratio, resolution, frame count, and seed into a copy rather than modifying the baseline template.
+7. Validate one minimal shot before the three-shot workflow.
 
-三镜头模板会把上一镜头的最后一帧作为下一镜头首帧，并删除拼接时重复的边界帧。它仍会累积身份、构图和背景漂移，因此不应宣传为“无限无漂移长视频”。
+The three-shot template uses the final frame of one shot as the next shot's first frame and removes duplicate boundary frames during assembly. Identity, composition, and background drift can still accumulate, so do not present it as "infinite drift-free video."
 
-**验证边界：** 仓库自动检查 JSON、节点、槽位、连接和模型引用；除非实际 GPU 推理成功，否则只能说“结构验证通过”，不能声称“视频生成已验证”。
+**Validation boundary:** repository checks validate JSON structure, nodes, slots, links, and model references. Unless actual GPU inference succeeds, say only that structural validation passed.
 
-## 第五步：生成项目骨架
+## Step 5: Generate a project scaffold
 
-当仓库脚本可用时，优先执行：
+When repository scripts are available:
 
 ```bash
 python scripts/scaffold_project.py \
-  --name "项目名称" \
+  --name "project-name" \
   --duration 30 \
   --aspect-ratio 16:9 \
   --mode mixed
 ```
 
-然后填写：
+Then complete:
 
-- `brief.md`：目标、受众、风格、约束和验收条件。
-- `shots.csv`：每个镜头的时长、画面、运动、输入素材、模型、种子和状态。
-- `prompts.md`：正向提示词、负向约束、角色锚点与镜头级提示词。
-- `manifest.json`：项目参数和可复现信息。
+- `brief.md`: goals, audience, style, constraints, and acceptance criteria;
+- `shots.csv`: duration, visual content, motion, inputs, model, seed, and status per shot;
+- `prompts.md`: positive prompts, negative constraints, identity anchors, and per-shot prompts;
+- `manifest.json`: project parameters and reproducibility information.
 
-## 第六步：输出工作流方案
+## Step 6: Output the plan
 
-最终方案按以下顺序给出：
+Present the final plan in this order:
 
-1. **需求摘要与假设**。
-2. **主路线 / 备选路线**。
-3. **选用的仓库工作流或新建工作流理由**。
-4. **最小验证步骤**。
-5. **安装与模型准备**：仅使用已核对的官方文档；版本不确定时不要写死。
-6. **镜头表**：镜头编号、时长、构图、主体动作、镜头运动、输入素材、生成模式。
-7. **提示词包**：全局视觉锚点、角色锚点、单镜头提示词、负向约束。
-8. **工作流参数**：分辨率、帧率、帧数、种子、采样与后处理；不确定值标为建议起点。
-9. **质量控制**：主体一致性、手部/文字、运动连续性、闪烁、边缘、音画同步和字幕。
-10. **风险、许可和失败回退方案**。
+1. Requirements summary and assumptions.
+2. Primary route and fallback route.
+3. Existing repository workflow or reason a new one is needed.
+4. Minimal validation steps.
+5. Installation and model preparation using verified official documentation.
+6. Shot list.
+7. Prompt pack.
+8. Workflow parameters: resolution, fps, frame count, seed, sampling, and post-processing.
+9. Quality control for identity, hands/text, motion continuity, flicker, edges, AV sync, and subtitles.
+10. Risks, licensing, and fallback behavior.
 
-完整交付格式见 [`references/workflow-contract.md`](references/workflow-contract.md)。
+See [`references/workflow-contract.md`](references/workflow-contract.md) for the full output contract.
 
-## 最小验证规则
+## Minimal validation rules
 
-首次运行默认只验证一个镜头：
+For the first run:
 
-- 2–5 秒。
-- 较低或中等分辨率。
-- 固定种子。
-- 单一参考图或单一动作目标。
-- 关闭非必要超分、补帧和复杂后处理。
+- 2–5 seconds;
+- low or medium resolution;
+- fixed seed;
+- one reference image or one motion objective;
+- disable nonessential upscaling, interpolation, and complex post-processing.
 
-验证通过后再逐项增加分辨率、时长、控制条件和批量数量。每次只改变少量变量，以便定位问题。
+Scale resolution, duration, control conditions, and batch size only after the minimal test passes. Change only a few variables at a time.
 
-## 显存与性能处理
+## VRAM and performance
 
-出现显存不足或速度过慢时，按以下顺序处理：
+When VRAM is insufficient or performance is too slow:
 
-1. 降低帧数、分辨率或批量。
-2. 使用上游明确支持的低精度、量化或分块方案。
-3. 启用模型、文本编码器或 VAE 的 CPU offload（仅在当前管线支持时）。
-4. 减少同时加载的模型、Control、LoRA 和自定义节点。
-5. 先低分辨率生成，再进行超分、补帧和编码。
-6. 记录调整前后的峰值显存、耗时和画质变化。
+1. Reduce frame count, resolution, or batch size.
+2. Use upstream-supported low-precision, quantization, or tiling options.
+3. Enable CPU offload only when the current pipeline supports it.
+4. Reduce simultaneously loaded models, control modules, LoRAs, and custom nodes.
+5. Generate at lower resolution first, then upscale/interpolate/encode.
+6. Record peak VRAM, runtime, and visual-quality changes before and after adjustments.
 
-不凭显存容量断言某个模型“一定能跑”或“一定不能跑”。
+Do not infer guaranteed compatibility from GPU memory capacity alone.
 
-## 故障排查
+## Troubleshooting
 
-出现以下情况时阅读 [`references/troubleshooting.md`](references/troubleshooting.md)：
+Read [`references/troubleshooting.md`](references/troubleshooting.md) for:
 
-- CUDA OOM 或系统内存耗尽。
-- ComfyUI 缺少节点或工作流版本不兼容。
-- 模型、VAE、文本编码器或 LoRA 路径错误。
-- dtype、CUDA、PyTorch 或加速库不兼容。
-- 视频闪烁、人物漂移、动作断裂、画面变形。
-- 输出帧率、时长、音频或编码异常。
+- CUDA OOM or system-memory exhaustion;
+- missing ComfyUI nodes or incompatible workflow versions;
+- incorrect model, VAE, text-encoder, or LoRA paths;
+- dtype, CUDA, PyTorch, or acceleration-library incompatibilities;
+- flicker, subject drift, motion discontinuity, or image deformation;
+- incorrect frame rate, duration, audio, or encoding.
 
-## 禁止事项
+## Prohibited claims and actions
 
-- 不虚构不存在的模型版本、仓库、节点、参数或下载地址。
-- 不引用未经核验的 Stars 数作为推荐依据。
-- 不把社区量化包或第三方节点描述成官方发布。
-- 不保证特定显卡的速度、显存占用或最大生成时长。
-- 不在未看到工作流 JSON 时声称已经验证其节点连接。
-- 不把结构校验写成 GPU 推理成功。
-- 不把“生成完成”写入回复，除非实际工具或运行环境返回成功结果。
-- 不忽略模型权重的许可证、地域限制或商业使用条件。
+- Do not invent model versions, repositories, nodes, parameters, or download URLs.
+- Do not use unverified star counts as a recommendation signal.
+- Do not describe community quantizations or third-party nodes as official releases.
+- Do not guarantee speed, VRAM use, or maximum generation length for a specific GPU.
+- Do not claim a workflow's node graph is verified without inspecting the JSON.
+- Do not describe structural validation as successful GPU inference.
+- Do not claim generation completed unless actual tool output confirms success.
+- Do not ignore licenses, regional restrictions, or commercial-use terms for model weights.
 
-## 相关文件
+## Related files
 
-- [`../../workflows/README.md`](../../workflows/README.md)：三套 ComfyUI 工作流说明。
-- [`../../workflows/models.json`](../../workflows/models.json)：模型文件与官方来源清单。
-- [`references/model-selection.md`](references/model-selection.md)：任务与技术路线选择。
-- [`references/workflow-contract.md`](references/workflow-contract.md)：标准交付格式。
-- [`references/troubleshooting.md`](references/troubleshooting.md)：常见问题排查。
-- [`templates/video-brief.md`](templates/video-brief.md)：视频项目 Brief 模板。
-- [`../../catalog/projects.json`](../../catalog/projects.json)：机器可读项目目录。
+- [`../../workflows/README.md`](../../workflows/README.md)
+- [`../../workflows/models.json`](../../workflows/models.json)
+- [`references/model-selection.md`](references/model-selection.md)
+- [`references/workflow-contract.md`](references/workflow-contract.md)
+- [`references/troubleshooting.md`](references/troubleshooting.md)
+- [`templates/video-brief.md`](templates/video-brief.md)
+- [`../../catalog/projects.json`](../../catalog/projects.json)
