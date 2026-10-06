@@ -1,34 +1,34 @@
-# 文档索引
+# Documentation Index
 
-## 长篇视频
+## Long-form video
 
-- [`LONGFORM_VIDEO_PRODUCTION.md`](LONGFORM_VIDEO_PRODUCTION.md)：60–360 分钟长篇纪录片、科普、课程和专题视频的资料入库、分章写稿、素材审核、配音、分章渲染、最终拼接与质量检查。
+- [`LONGFORM_VIDEO_PRODUCTION.md`](LONGFORM_VIDEO_PRODUCTION.md): ingest research, draft by chapter, review assets, create narration, render chapters, assemble the final video, and run quality checks for 60–360 minute documentaries, explainers, courses, and feature videos.
 
-## 网络研究与自动成片
+## Web research and automated production
 
-- [`WEB_MEDIA_PRODUCTION.md`](WEB_MEDIA_PRODUCTION.md)：Codex 网络研究、开放素材搜索、授权链接下载、素材清单、文案、分镜和成片流程。
-- [`WEB_MEDIA_APP_SETUP.md`](WEB_MEDIA_APP_SETUP.md)：MoneyPrinterTurbo、NarratoAI、VideoLingo 的锁定源码下载、重型依赖配置与启动方式。
+- [`WEB_MEDIA_PRODUCTION.md`](WEB_MEDIA_PRODUCTION.md): Codex web research, open-media search, authorized-link downloads, asset manifests, scripting, storyboards, and final production.
+- [`WEB_MEDIA_APP_SETUP.md`](WEB_MEDIA_APP_SETUP.md): pinned-source installation, dependency setup, and launch instructions for MoneyPrinterTurbo, NarratoAI, and VideoLingo.
 
-## 视频生成与剪辑
+## Video generation and editing
 
-- [`VIDEO_EDITING_SETUP.md`](VIDEO_EDITING_SETUP.md)：Auto-Editor 安装、静音/运动/字幕粗剪、效果和专业工程导出。
-- [`LOCAL_SETUP.md`](LOCAL_SETUP.md)：本地 AI 视频生成和 ComfyUI 环境准备。
+- [`VIDEO_EDITING_SETUP.md`](VIDEO_EDITING_SETUP.md): Auto-Editor installation, silence/motion/transcript rough cuts, effects, and professional timeline export.
+- [`LOCAL_SETUP.md`](LOCAL_SETUP.md): local AI video generation and ComfyUI environment preparation.
 
-## 推荐顺序
+## Recommended paths
 
 ```text
-一小时以上长篇视频
+Hour-plus long-form production
 → LONGFORM_VIDEO_PRODUCTION.md + longform-documentary-producer Skill
 
-只查资料和下载素材
-→ WEB_MEDIA_PRODUCTION.md 的 core 档位
+Research and asset download only
+→ core profile in WEB_MEDIA_PRODUCTION.md
 
-从主题直接生成短视频
-→ creator 档位 + moneyprinterturbo-video Skill
+Generate a short video directly from a topic
+→ creator profile + moneyprinterturbo-video Skill
 
-已有素材精确混剪
+Precise editing of existing material
 → web-media-producer + ai-video-editing
 
-影视解说或多语言配音
-→ full 档位 + WEB_MEDIA_APP_SETUP.md
+Commentary or multilingual dubbing
+→ full profile + WEB_MEDIA_APP_SETUP.md
 ```
