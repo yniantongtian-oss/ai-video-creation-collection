@@ -59,77 +59,77 @@ def create_project(args: argparse.Namespace) -> Path:
         (project / relative).mkdir(parents=True, exist_ok=True)
 
     created_at = datetime.now(timezone.utc).isoformat()
-    brief = f"""# 项目 Brief：{name}
+    brief = f"""# Project Brief: {name}
 
-## 核心目标
+## Core goal
 
-- 主题：{args.topic}
-- 目标受众：{args.audience}
-- 视频时长：{args.duration} 秒
-- 画幅：{args.aspect_ratio}
-- 语言：{args.language}
-- 发布平台：{args.platform}
+- Topic: {args.topic}
+- Target audience: {args.audience}
+- Duration: {args.duration} seconds
+- Aspect ratio: {args.aspect_ratio}
+- Language: {args.language}
+- Distribution platform: {args.platform}
 
-## 交付物
+## Deliverables
 
-- 有来源标记的研究资料和摘要
-- 素材许可证清单 `manifests/assets.jsonl`
-- 旁白/文案 `script/script.md`
-- 镜头表 `storyboard/storyboard.csv`
-- 剪辑计划 `edit/edit-plan.json`
-- 字幕、配音和最终视频
-- 发布前事实核查与版权检查报告
+- Research notes and summaries with source references
+- Media license manifest at `manifests/assets.jsonl`
+- Narration/script at `script/script.md`
+- Shot list at `storyboard/storyboard.csv`
+- Editing plan at `edit/edit-plan.json`
+- Subtitles, narration audio, and final video
+- Pre-release fact-check and rights-review report
 
-## 内容要求
+## Content requirements
 
-1. 不整段复制文章、视频字幕或受版权保护文本。
-2. 所有事实应能追溯到研究来源。
-3. 素材优先使用公共领域、CC0、CC BY、CC BY-SA、素材平台授权、用户自有或已获许可内容。
-4. 未确认授权的素材不能进入最终剪辑。
-5. 不绕过付费墙、DRM、登录限制、robots 规则或平台安全措施。
+1. Do not reproduce long passages from articles, video transcripts, or copyrighted text.
+2. Every important factual claim should be traceable to a research source.
+3. Prefer public-domain, CC0, CC BY, CC BY-SA, provider-licensed, user-owned, or explicitly permitted media.
+4. Media with unverified rights must not enter the final edit.
+5. Do not bypass paywalls, DRM, authentication restrictions, robots rules, or platform security controls.
 """
     write_text(project / "brief.md", brief)
 
-    source_notes = """# 研究来源
+    source_notes = """# Research Sources
 
-Codex 在这里记录每个网页、论文、视频和数据源：
+Record each web page, paper, video, and data source here:
 
-- 标题：
-- URL：
-- 作者/机构：
-- 发布日期：
-- 访问日期：
-- 核心事实：
-- 可引用范围：摘要/短引文/数据
-- 可靠性与局限：
+- Title:
+- URL:
+- Author/organization:
+- Publication date:
+- Access date:
+- Key facts:
+- Allowed quotation scope: summary / short quotation / data
+- Reliability and limitations:
 
-不要把搜索摘要当作最终事实依据；应打开原始来源核验。
+Search-result snippets are discovery aids, not final evidence. Open and verify the original source.
 """
     write_text(project / "research" / "sources.md", source_notes)
 
-    script = f"""# {name} 视频文案
+    script = f"""# {name} Video Script
 
-## 标题候选
+## Title candidates
 
-1. 
-2. 
-3. 
+1.
+2.
+3.
 
-## 开头钩子（前 3–8 秒）
-
-
-## 正文旁白
+## Opening hook (first 3–8 seconds)
 
 
-## 结尾与行动引导
+## Main narration
 
 
-## 事实核查
+## Ending and call to action
 
-- [ ] 每个关键事实已对应来源
-- [ ] 数据和日期使用绝对日期
-- [ ] 未出现无法证明的夸张结论
-- [ ] 未大段复述受版权保护内容
+
+## Fact check
+
+- [ ] Every important claim has a source
+- [ ] Data and dates use unambiguous absolute dates
+- [ ] No unsupported or exaggerated conclusions
+- [ ] No substantial reproduction of copyrighted source text
 """
     write_text(project / "script" / "script.md", script)
 
@@ -190,9 +190,9 @@ Codex 在这里记录每个网页、论文、视频和数据源：
         json.dumps(edit_plan, ensure_ascii=False, indent=2),
     )
 
-    manifest_readme = """# 素材清单
+    manifest_readme = """# Asset Manifest
 
-`assets.jsonl` 每行一个 JSON 对象。推荐字段：
+`assets.jsonl` stores one JSON object per line. Recommended fields:
 
 ```json
 {
@@ -212,7 +212,7 @@ Codex 在这里记录每个网页、论文、视频和数据源：
 }
 ```
 
-最终剪辑只允许使用 `selected=true` 且授权状态通过校验的素材。
+The final edit may use only assets with `selected=true` whose rights status passes validation.
 """
     write_text(project / "manifests" / "README.md", manifest_readme)
     (project / "manifests" / "assets.jsonl").touch(exist_ok=True)
@@ -240,11 +240,11 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--name", required=True, help="Project directory name.")
     parser.add_argument("--topic", required=True, help="Video topic or research question.")
-    parser.add_argument("--audience", default="中文互联网普通观众")
+    parser.add_argument("--audience", default="General online audience")
     parser.add_argument("--duration", type=int, default=60)
     parser.add_argument("--aspect-ratio", choices=sorted(VALID_ASPECT_RATIOS), default="9:16")
-    parser.add_argument("--language", default="zh-CN")
-    parser.add_argument("--platform", default="抖音/B站/视频号")
+    parser.add_argument("--language", default="en-US")
+    parser.add_argument("--platform", default="YouTube/TikTok/Instagram")
     parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT)
     parser.add_argument("--force", action="store_true")
     args = parser.parse_args()
