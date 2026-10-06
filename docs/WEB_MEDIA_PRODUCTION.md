@@ -1,79 +1,79 @@
-# Codex 网络资料与素材自动成片
+# Codex Web Research and Automated Media Production
 
-本仓库现在支持让 Codex 完成以下流程：
+This repository supports an end-to-end workflow:
 
 ```text
-公开网络研究
-→ 文档正文提取与事实核查
-→ 开放授权图片/视频/音频搜索
-→ 用户授权链接下载
-→ 素材来源和许可证清单
-→ 文案、分镜、配音、字幕、音乐
-→ 自动剪辑、翻译配音或影视解说
-→ 最终 MP4 与可追溯交付包
+Public web research
+→ document extraction and fact checking
+→ openly licensed image/video/audio search
+→ authorized-link downloads
+→ source and license manifests
+→ script, storyboard, narration, subtitles, and music
+→ automated editing, dubbing, or commentary
+→ final MP4 and traceable delivery package
 ```
 
-核心入口：
+Primary entry point:
 
 ```text
 skills/web-media-producer
 ```
 
-主题直接生成成片：
+Topic-to-video entry point:
 
 ```text
 skills/moneyprinterturbo-video
 ```
 
-## 1. 安装配置
+## 1. Install
 
-需要先安装 `git` 和 `uv`。然后在仓库根目录运行：
+Install `git` and `uv`, then run from the repository root:
 
 ```bash
 python scripts/install_web_media_stack.py --profile creator
 ```
 
-三个安装档位：
+Profiles:
 
-| 档位 | 内容 | 适合场景 |
+| Profile | Includes | Best for |
 |---|---|---|
-| `core` | yt-dlp、gallery-dl、Trafilatura | 研究、下载、素材归档 |
-| `creator` | core + MoneyPrinterTurbo | 主题、文案、素材、配音、字幕到短视频 |
-| `full` | creator + NarratoAI + VideoLingo | 影视解说、已有视频分析、翻译和多语言配音 |
+| `core` | yt-dlp, gallery-dl, Trafilatura | Research, downloads, asset archiving |
+| `creator` | core + MoneyPrinterTurbo | Topic/script/assets/narration/subtitles to short video |
+| `full` | creator + NarratoAI + VideoLingo | Commentary, existing-video analysis, translation, multilingual dubbing |
 
-预览将执行的命令和锁定版本：
+Preview commands and pinned versions:
 
 ```bash
 python scripts/install_web_media_stack.py --profile full --dry-run
 ```
 
-第三方程序安装到：
+Third-party programs are installed into:
 
 ```text
 tools/web-media/
 ```
 
-该目录被 `.gitignore` 排除。仓库只保存审核过的仓库地址、提交 SHA、许可证和安装脚本：
+That directory is Git-ignored. The repository stores only reviewed repository URLs, commit SHAs, license information, and installation instructions in:
 
 ```text
 tools/web-media-stack.lock.json
 ```
 
-## 2. API Key
+## 2. API keys
 
-首次安装会从模板创建：
+Initial setup creates:
 
 ```text
 tools/web-media/.env
 ```
 
-模板文件：
+Template:
 
 ```text
 config/web-media.env.example
 ```
 
-常用字段：
+Common fields:
 
 ```text
 MPT_LLM_PROVIDER=moonshot
@@ -83,25 +83,25 @@ PEXELS_API_KEY=
 PIXABAY_API_KEY=
 ```
 
-不要把真实密钥提交到 Git、放进视频文案、打印到日志或发送到不受信任服务。
+Never commit real secrets, place them in scripts, print them to logs, or send them to untrusted services.
 
-MoneyPrinterTurbo 官方 Skill 会复用现有配置，只在缺少必要凭据时要求一次性补充。
+MoneyPrinterTurbo's official Skill reuses existing configuration and requests only credentials that are missing and necessary.
 
-## 3. 创建项目
+## 3. Create a project
 
 ```bash
 python scripts/scaffold_web_media_project.py \
-  --name "空间太阳能电站科普" \
-  --topic "空间太阳能电站如何向地面输送能量" \
+  --name "space-solar-power-explainer" \
+  --topic "How space-based solar power could transmit energy to Earth" \
   --duration 90 \
   --aspect-ratio 9:16 \
-  --language zh-CN
+  --language en-US
 ```
 
-生成目录：
+Generated structure:
 
 ```text
-projects/空间太阳能电站科普/
+projects/space-solar-power-explainer/
 ├── brief.md
 ├── project.json
 ├── research/
@@ -115,9 +115,9 @@ projects/空间太阳能电站科普/
 └── outputs/
 ```
 
-`projects/` 默认不提交到 Git，避免把素材、密钥、缓存和大视频推入仓库。
+`projects/` is Git-ignored by default so media, secrets, caches, and large rendered files are not committed.
 
-## 4. 搜索开放素材
+## 4. Search open media
 
 ### Wikimedia Commons
 
@@ -127,10 +127,10 @@ python scripts/search_open_media.py \
   --media-type image \
   --query "space based solar power" \
   --limit 20 \
-  --output "projects/空间太阳能电站科普/research/search-results/commons.json"
+  --output "projects/space-solar-power-explainer/research/search-results/commons.json"
 ```
 
-该工具会读取 Commons 的文件页和扩展许可证元数据。仍应人工检查每个文件页面，因为历史上传、署名和衍生作品可能有额外要求。
+The tool reads Commons file pages and extended license metadata. Manually review each source page because historical uploads, attribution, and derivative works may impose additional requirements.
 
 ### Openverse
 
@@ -142,7 +142,7 @@ python scripts/search_open_media.py \
   --limit 20
 ```
 
-Openverse 用于发现 Creative Commons 或公共领域图片与音频，最终授权以原始来源页面为准。
+Openverse helps discover Creative Commons and public-domain media. The original source page remains authoritative for licensing.
 
 ### Pexels
 
@@ -153,11 +153,11 @@ python scripts/search_open_media.py \
   --query "satellite earth solar panels" \
   --limit 12 \
   --download-first 3 \
-  --download-dir "projects/空间太阳能电站科普/assets/videos" \
-  --manifest "projects/空间太阳能电站科普/manifests/assets.jsonl"
+  --download-dir "projects/space-solar-power-explainer/assets/videos" \
+  --manifest "projects/space-solar-power-explainer/manifests/assets.jsonl"
 ```
 
-Pexels API 需要密钥。项目应保留 Pexels 来源链接，并在可能时署名摄影作者。
+Pexels requires an API key. Preserve source links and credit creators when appropriate.
 
 ### Pixabay
 
@@ -168,74 +168,74 @@ python scripts/search_open_media.py \
   --query "satellite energy" \
   --limit 12 \
   --download-first 3 \
-  --download-dir "projects/空间太阳能电站科普/assets/videos" \
-  --manifest "projects/空间太阳能电站科普/manifests/assets.jsonl"
+  --download-dir "projects/space-solar-power-explainer/assets/videos" \
+  --manifest "projects/space-solar-power-explainer/manifests/assets.jsonl"
 ```
 
-Pixabay API 需要密钥。脚本会下载候选素材而不是永久热链，并记录内容许可证页面。
+Pixabay requires an API key. The script downloads candidate assets instead of hotlinking and records the relevant license page.
 
-## 5. 收集公开网页资料
+## 5. Collect public web sources
 
 ```bash
 python scripts/ingest_authorized_source.py \
   --type document \
   --url "https://example.com/official-document" \
-  --project "projects/空间太阳能电站科普" \
+  --project "projects/space-solar-power-explainer" \
   --asset-id "official-source-001" \
   --license "Research reference; quotation limits apply" \
   --rights-status restricted
 ```
 
-提取后的 Markdown 放进：
+Extracted Markdown is stored in:
 
 ```text
 research/documents/
 ```
 
-`restricted` 表示可用于研究和事实核查，但不能把大段正文直接作为视频旁白或画面素材。
+`restricted` means the source may be used for research and fact checking, but substantial source text should not be republished as narration or visual media.
 
-## 6. 下载用户已获许可的视频或图片
+## 6. Download user-authorized media
 
-公开视频：
+Public video:
 
 ```bash
 python scripts/ingest_authorized_source.py \
   --type video \
   --url "https://example.com/public-video" \
-  --project "projects/项目名称" \
+  --project "projects/project-name" \
   --asset-id "user-video-001" \
   --license "User owns or has permission to reuse" \
   --rights-status permission-granted \
-  --permission-note "用户确认拥有再利用许可"
+  --permission-note "User confirmed permission to reuse"
 ```
 
-公开图库：
+Public gallery:
 
 ```bash
 python scripts/ingest_authorized_source.py \
   --type gallery \
   --url "https://example.com/gallery" \
-  --project "projects/项目名称" \
+  --project "projects/project-name" \
   --asset-id "gallery-001" \
   --license "CC BY 4.0" \
   --license-url "https://creativecommons.org/licenses/by/4.0/" \
   --rights-status cc-by \
-  --creator "作者名称" \
-  --attribution "作者名称，CC BY 4.0"
+  --creator "Creator Name" \
+  --attribution "Creator Name, CC BY 4.0"
 ```
 
-下载包装器不提供 Cookie、账号密码、浏览器会话或 DRM 绕过参数。
+The downloader wrapper does not expose cookie, account-password, browser-session, or DRM-bypass options.
 
-## 7. 素材清单和版权闸门
+## 7. Asset manifest and rights gate
 
-检查清单：
+Validate the manifest:
 
 ```bash
 python scripts/media_asset_manifest.py validate \
-  --manifest "projects/项目名称/manifests/assets.jsonl"
+  --manifest "projects/project-name/manifests/assets.jsonl"
 ```
 
-默认允许：
+Allowed by default:
 
 ```text
 public-domain
@@ -247,85 +247,87 @@ user-owned
 permission-granted
 ```
 
-默认阻止：
+Blocked by default:
 
 ```text
 unknown
 restricted
 ```
 
-搜索脚本下载的候选素材默认写为：
+Automatically downloaded search results are stored as candidates:
 
 ```json
 "selected": false
 ```
 
-Codex 必须先查看内容、分辨率、相关性、人物隐私和授权，再将选中的素材标记为 `selected=true`。
+Before changing an asset to `selected=true`, review the content, resolution, relevance, privacy implications, and licensing.
 
-## 8. 生成文案和成片
+## 8. Generate scripts and video
 
-### MoneyPrinterTurbo：主题直接生成
+### MoneyPrinterTurbo: topic-to-video
 
-在 `skills/moneyprinterturbo-video` 目录中运行：
+From `skills/moneyprinterturbo-video`:
 
 ```bash
 uv run --no-project --python 3.11 python mpt_agent.py \
-  --subject "空间太阳能电站如何工作"
+  --subject "How space-based solar power works"
 ```
 
-默认生成中文 9:16 视频，使用素材平台画面、Edge TTS、字幕和背景音乐。
+The default workflow targets an English-language 9:16 video using licensed stock media, Edge TTS, subtitles, and background music.
 
-### Auto-Editor：指定素材混剪
+### Auto-Editor: edit selected footage
 
-加载：
+Load:
 
 ```text
 skills/ai-video-editing
 ```
 
-先预览切点，再渲染新文件，不覆盖原素材。需要人工精修时可导出 Premiere、DaVinci Resolve、Final Cut Pro、Shotcut 或 Kdenlive 工程。
+Preview edit decisions before rendering a new file, and never overwrite the source. Export to Premiere, DaVinci Resolve, Final Cut Pro, Shotcut, or Kdenlive when manual refinement is needed.
 
-### NarratoAI：已有视频解说
+### NarratoAI: commentary on existing video
 
-完整安装后位于：
+Installed at:
 
 ```text
 tools/web-media/apps/NarratoAI
 ```
 
-适用于用户自有、公共领域或已获许可的视频分析、解说文案、配音和自动剪辑。
+Use it only with user-owned, public-domain, or otherwise authorized footage.
 
-### VideoLingo：翻译和配音
+### VideoLingo: translation and dubbing
 
-完整安装后位于：
+Installed at:
 
 ```text
 tools/web-media/apps/VideoLingo
 ```
 
-适用于已有视频的字幕识别、翻译、术语一致性、配音和本地化。
+Use it for transcription, translation, terminology consistency, dubbing, and localization of authorized video.
 
-## 9. 给 Codex 的直接指令
+## 9. Example Codex instruction
 
 ```text
-加载 skills/web-media-producer。
-围绕“空间太阳能电站如何工作”制作 90 秒中文竖屏科普视频。
-先创建项目，检索官方文档和可信来源；只下载公共领域、CC、Pexels、Pixabay
-或我已授权的素材。所有素材写入 assets.jsonl，并在最终渲染前通过版权校验。
-写原创文案和逐镜头分镜，生成配音、字幕和背景音乐。
-优先用 MoneyPrinterTurbo 生成基础成片，再用 ai-video-editing 做节奏检查和必要精修。
-交付 MP4、SRT、文案、分镜、来源清单和署名清单。
-不要覆盖原文件，不要打印 API Key，不要绕过 DRM、登录或付费墙。
+Load skills/web-media-producer.
+Produce a 90-second vertical explainer about how space-based solar power works.
+Create the project first and research official documentation and reliable sources.
+Download only public-domain, Creative Commons, Pexels, Pixabay, or user-authorized media.
+Record every asset in assets.jsonl and pass the rights gate before final rendering.
+Write an original script and shot-by-shot storyboard, then generate narration, subtitles,
+and background music. Prefer MoneyPrinterTurbo for the base cut and use ai-video-editing
+for pacing review and refinement. Deliver MP4, SRT, script, storyboard, source manifest,
+and attribution manifest. Do not overwrite originals, print API keys, or bypass DRM,
+authentication, or paywalls.
 ```
 
-## 10. 能力边界
+## 10. Capability boundaries
 
-这套配置能够广泛搜索和整理公开网络资料，但不能承诺：
+This setup can research and organize public web material, but it does not promise to:
 
-- 抓取整个互联网；
-- 绕过平台限制、登录、验证码、付费墙或 DRM；
-- 自动获得任何第三方视频、图片、音乐或文章的版权；
-- 完全无需人工复核字幕、事实、素材许可和最终剪辑；
-- 在没有实际运行生成流程时声称成片已完成。
+- Crawl the entire internet.
+- Bypass platform restrictions, authentication, CAPTCHAs, paywalls, or DRM.
+- Acquire copyright in third-party video, images, music, or articles automatically.
+- Eliminate the need for human review of subtitles, facts, asset licensing, and final edits.
+- Claim a finished video exists unless the generation workflow actually ran.
 
-对商用、新闻、医疗、法律、金融、人物声誉和争议内容，应进行更严格的来源和权利审核。
+Commercial, news, medical, legal, financial, reputational, and controversial content requires stricter source and rights review.
