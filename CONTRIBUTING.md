@@ -1,27 +1,27 @@
-# 贡献指南
+# Contributing
 
-感谢补充 AI 视频创作相关的模型、框架、工具、工作流和 Skill。仓库目标是保持**可信、可执行、可维护**，而不是收录数量最多。
+Thanks for contributing AI video models, frameworks, tools, workflows, and Skills. The goal of this repository is to remain **trustworthy, executable, and maintainable**, not to maximize the number of entries.
 
-## 收录标准
+## Inclusion criteria
 
-优先收录：
+Prefer:
 
-- 模型或框架的官方仓库。
-- 有明确文档、许可证和维护记录的项目。
-- 能补充现有能力，而不是仅换一个包装名称的工具。
-- 对本地工作流、研究、训练、批处理或 Agent Skills 有明确价值的项目。
+- Official model or framework repositories.
+- Projects with clear documentation, licensing, and maintenance history.
+- Tools that add a distinct capability rather than merely repackage an existing one.
+- Projects with clear value for local workflows, research, training, batch processing, or Agent Skills.
 
-谨慎或不收录：
+Use caution or exclude:
 
-- 无许可证、来源不明或只有二进制文件的仓库。
-- 通过夸张宣传、虚假 Stars 或未验证性能吸引用户的项目。
-- 仅提供模型下载转载，无法确认权重来源的仓库。
-- 带有明文密钥、恶意安装脚本或高风险依赖的项目。
-- 长期无人维护且已有可靠替代的项目。
+- Repositories with no license, unclear provenance, or binary-only releases.
+- Projects promoted through unverifiable performance claims or artificial popularity signals.
+- Model mirrors whose weight provenance cannot be verified.
+- Projects containing plaintext secrets, malicious installers, or high-risk dependencies.
+- Unmaintained projects when a reliable replacement already exists.
 
-## 修改资源目录
+## Editing the project catalog
 
-编辑 `catalog/projects.json`。每条项目必须包含：
+Edit `catalog/projects.json`. Every entry must contain:
 
 ```json
 {
@@ -32,56 +32,56 @@
   "official": true,
   "license": "See upstream LICENSE and model terms",
   "capabilities": ["text-to-video"],
-  "when_to_use": "说明何时使用。",
-  "notes": "说明限制与核验事项。"
+  "when_to_use": "Explain when this project is appropriate.",
+  "notes": "Describe limitations and verification requirements."
 }
 ```
 
-允许分类由 `scripts/validate_catalog.py` 中的 `ALLOWED_CATEGORIES` 定义。新增分类时，应同时说明理由并修改校验脚本。
+Allowed categories are defined by `ALLOWED_CATEGORIES` in `scripts/validate_catalog.py`. If you add a category, document the reason and update the validator in the same change.
 
-## 描述规范
+## Description rules
 
-- 不写 Stars 数。
-- 不使用“最强”“第一”“一定能跑”等无法长期验证的表述。
-- 显存、速度、分辨率和时长使用环境相关描述，并提供验证方法。
-- 区分官方项目、社区节点、社区量化和第三方工作流。
-- 许可证不确定时写 `See upstream LICENSE and model terms`，不要猜测。
-- URL 指向仓库根目录，不使用搜索结果、分支页面或下载跳转地址。
+- Do not include star counts.
+- Avoid claims such as "best", "number one", or "guaranteed to run" that cannot be maintained over time.
+- Describe VRAM, speed, resolution, and duration as environment-dependent and provide a way to verify them.
+- Distinguish official projects, community nodes, community quantizations, and third-party workflows.
+- If licensing is uncertain, write `See upstream LICENSE and model terms` instead of guessing.
+- Point URLs at repository roots rather than search results, branch pages, or download redirects.
 
-## 修改 ComfyUI 工作流
+## Editing ComfyUI workflows
 
-工作流位于 `workflows/`。修改时必须遵守：
+Workflows live in `workflows/`. Changes must follow these rules:
 
-- 优先使用 ComfyUI 核心节点；新增第三方节点时必须记录仓库、版本和安装方式。
-- 模型文件名、目录和下载来源必须同步更新 `workflows/models.json`。
-- 不把结构校验写成真实 GPU 推理成功。
-- 改动采样步数时，应同时检查高噪声和低噪声阶段的分界、加噪和剩余噪声设置。
-- 修改帧数、fps 或拼接方式时，同步更新 `workflows/README.md` 中的默认时长。
-- 三镜头工作流的标准 JSON 由压缩源生成。需要更新时，应同时替换 `wan22_long_video_3shot.json.gz`，并确保展开后的 JSON 通过校验。
-- 不提交模型权重、生成视频、个人素材或密钥。
+- Prefer ComfyUI core nodes. If a third-party node is required, record its repository, version, and installation method.
+- Keep model filenames, directories, and download sources synchronized with `workflows/models.json`.
+- Do not present structural validation as proof of successful real GPU inference.
+- When changing sampling steps, also check the high-noise/low-noise boundary, noise injection, and leftover-noise settings.
+- When changing frame counts, fps, or stitching behavior, update the default duration documented in `workflows/README.md`.
+- The canonical three-shot workflow JSON is generated from a compressed source. Update `wan22_long_video_3shot.json.gz` as needed and verify the expanded JSON.
+- Do not commit model weights, generated video, personal media, or secrets.
 
-工作流校验必须检查：
+Workflow validation must verify:
 
-- 节点 ID 和连接 ID 唯一。
-- 连接的源节点、目标节点和槽位存在。
-- 节点输入输出对连接 ID 的反向引用一致。
-- `last_node_id`、`last_link_id` 和 workflow version 正确。
-- `CreateVideo`、`SaveVideo` 以及任务所需节点存在。
-- 工作流引用的模型全部出现在 `models.json`。
+- Unique node IDs and link IDs.
+- Existing source nodes, target nodes, and slots for every link.
+- Consistent reverse references between node inputs/outputs and link IDs.
+- Correct `last_node_id`, `last_link_id`, and workflow version.
+- Presence of `CreateVideo`, `SaveVideo`, and task-required nodes.
+- Every referenced model appears in `models.json`.
 
-## 修改 Skill
+## Editing Skills
 
-`skills/ai-video-creation/SKILL.md` 应保持聚焦：
+Keep `skills/ai-video-creation/SKILL.md` focused:
 
-- 放触发条件、决策流程、执行规则和输出要求。
-- 详细表格、长说明和排错内容放入 `references/`。
-- 可复制模板放入 `templates/`。
-- 不把当前流行项目列表全部堆进主 Skill。
-- 不声称 Agent 拥有其实际没有的本地 GPU、视频生成工具或后台执行能力。
+- Put trigger conditions, decision flow, execution rules, and output requirements in the main Skill.
+- Put detailed tables, long explanations, and troubleshooting material in `references/`.
+- Put reusable templates in `templates/`.
+- Do not turn the main Skill into a list of currently popular projects.
+- Do not claim that an Agent has local GPU access, video-generation software, or background execution unless it actually does.
 
-## 本地检查
+## Local checks
 
-提交前运行：
+Run before submitting:
 
 ```bash
 python scripts/materialize_workflows.py
@@ -89,7 +89,7 @@ python scripts/validate_catalog.py
 python scripts/validate_workflows.py
 python -m py_compile scripts/*.py
 
-# 可选：建立一个临时项目，确认脚手架正常
+# Optional: create a temporary project to verify the scaffolding
 python scripts/scaffold_project.py \
   --name "ci-smoke-test" \
   --output /tmp/ai-video-creation-test \
@@ -99,17 +99,17 @@ python scripts/scaffold_project.py \
   --mode mixed
 ```
 
-检查生成结果后删除临时目录。
+Delete the temporary directory after inspection.
 
-## Pull Request 说明
+## Pull request requirements
 
-PR 描述至少包括：
+A PR description should include:
 
-- 修改目的。
-- 新增或删除的项目、工作流或模型引用。
-- 官方来源和许可证核验结果。
-- 运行过的检查及结果。
-- 是否进行过真实 GPU 推理；未进行时必须明确说明。
-- 仍然存在的不确定项或后续工作。
+- The purpose of the change.
+- Projects, workflows, or model references added or removed.
+- Official sources and license-verification results.
+- Checks that were run and their results.
+- Whether real GPU inference was performed; say explicitly when it was not.
+- Remaining uncertainties or follow-up work.
 
-一个 PR 尽量只处理一个主题，避免把资源更新、Skill 重写和无关格式化混在一起。
+Keep each PR focused on one topic whenever possible. Avoid mixing catalog updates, Skill rewrites, and unrelated formatting changes.
