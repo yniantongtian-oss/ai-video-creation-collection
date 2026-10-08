@@ -68,7 +68,7 @@ jobs:
           python scripts/scaffold_project.py             --name "ci-smoke-test"             --output "$RUNNER_TEMP/ai-video-creation-test"             --duration 7             --shot-length 3             --aspect-ratio 16:9             --fps 24             --mode mixed
           test -f "$RUNNER_TEMP/ai-video-creation-test/ci-smoke-test/brief.md"
           test -f "$RUNNER_TEMP/ai-video-creation-test/ci-smoke-test/manifest.json"
-          test -f "$RUNNER_TEMP/ai-video-creation-test/ci-smoke-test/prompts.md"
+          test -f "$RUNNER_TEMP/ai-video-creation-test/ci-smoke-test/visual-direction.md"
           test -f "$RUNNER_TEMP/ai-video-creation-test/ci-smoke-test/shots.csv"
           python -m json.tool "$RUNNER_TEMP/ai-video-creation-test/ci-smoke-test/manifest.json" >/dev/null
 
