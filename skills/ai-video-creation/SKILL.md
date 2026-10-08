@@ -1,6 +1,6 @@
 ---
 name: ai-video-creation
-description: Convert AI video creation requests into executable local or open-source workflows. Use for text-to-video, image-to-video, video-to-video, continuation, multi-shot production, character consistency, ComfyUI workflows, model selection, VRAM optimization, shot lists, prompt packs, and troubleshooting. First establish the task, source assets, delivery specification, hardware, and licensing requirements. Prefer the repository's validated Wan2.2 and ComfyUI workflows when appropriate. Never invent model versions, repositories, nodes, VRAM usage, generation speed, or commercial-use terms.
+description: Convert AI video creation requests into executable local or open-source workflows. Use for text-to-video, image-to-video, video-to-video, continuation, multi-shot production, character consistency, ComfyUI workflows, model selection, VRAM optimization, shot lists, visual instruction packs, and troubleshooting. First establish the task, source assets, delivery specification, hardware, and licensing requirements. Prefer the repository's validated Wan2.2 and ComfyUI workflows when appropriate. Never invent model versions, repositories, nodes, VRAM usage, generation speed, or commercial-use terms.
 metadata:
   version: 1.1.0
   language: en-US
@@ -31,7 +31,7 @@ Do not use this Skill for unauthorized impersonation, deceptive deepfakes, illeg
 4. **Do not present estimates as facts.** VRAM, speed, maximum duration, and resolution depend on the model, quantization, nodes, drivers, and workflow.
 5. **Validate small first.** Generate a 2–5 second lower-resolution sample before scaling.
 6. **Split long-form work into shots.** Prefer shot lists, keyframes, short generated clips, editing, and audio post-production over one-shot generation.
-7. **Keep the workflow reproducible.** Record model, workflow version, seed, resolution, frame rate, prompts, inputs, and post-processing.
+7. **Keep the workflow reproducible.** Record model, workflow version, seed, resolution, frame rate, visual instructions, inputs, and post-processing.
 8. **Review commercial-use terms first.** Repository, code, model-weight, and output-use terms may differ.
 
 ## Step 1: Build the production brief
@@ -54,7 +54,7 @@ If minor information is missing but work can safely proceed, state explicit assu
 
 ### T2V
 
-Best for concept shots, environments, abstract visuals, and scenes without strict subject consistency. Write shot-level prompts before choosing the model.
+Best for concept shots, environments, abstract visuals, and scenes without strict subject consistency. Write shot-level visual instructions before choosing the model.
 
 ### I2V
 
@@ -108,7 +108,7 @@ Execution order:
 3. Run `python scripts/validate_workflows.py`.
 4. Check required files and directories in `../../workflows/models.json`.
 5. Use `scripts/download_workflow_models.py --dry-run` before downloading.
-6. Put user assets, prompts, aspect ratio, resolution, frame count, and seed into a copy rather than modifying the baseline template.
+6. Put user assets, visual instructions, aspect ratio, resolution, frame count, and seed into a copy rather than modifying the baseline template.
 7. Validate one minimal shot before the three-shot workflow.
 
 The three-shot template uses the final frame of one shot as the next shot's first frame and removes duplicate boundary frames during assembly. Identity, composition, and background drift can still accumulate, so do not present it as "infinite drift-free video."
@@ -131,7 +131,7 @@ Then complete:
 
 - `brief.md`: goals, audience, style, constraints, and acceptance criteria;
 - `shots.csv`: duration, visual content, motion, inputs, model, seed, and status per shot;
-- `visual-direction.md`: visual direction, negative constraints, identity anchors, and per-shot prompts;
+- `visual-direction.md`: visual direction, negative constraints, identity anchors, and per-shot visual instructions;
 - `manifest.json`: project parameters and reproducibility information.
 
 ## Step 6: Output the plan
@@ -144,7 +144,7 @@ Present the final plan in this order:
 4. Minimal validation steps.
 5. Installation and model preparation using verified official documentation.
 6. Shot list.
-7. Prompt pack.
+7. Visual direction.
 8. Workflow parameters: resolution, fps, frame count, seed, sampling, and post-processing.
 9. Quality control for identity, hands/text, motion continuity, flicker, edges, AV sync, and subtitles.
 10. Risks, licensing, and fallback behavior.
