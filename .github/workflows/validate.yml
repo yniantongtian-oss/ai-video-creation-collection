@@ -97,10 +97,7 @@ jobs:
           test -f "$PROJECT/chapters/01/status.json"
           test -f "$PROJECT/outline/chapter-map.csv"
           python -m json.tool "$PROJECT/project.json" >/dev/null
-          printf 'First research paragraph.
-
-Second paragraph contains verifiable facts and context.
-' > "$PROJECT/research/inbox/source.txt"
+          printf '%s\n' 'First research paragraph.' '' 'Second paragraph contains verifiable facts and context.' > "$PROJECT/research/inbox/source.txt"
           python scripts/ingest_longform_corpus.py             --project "$PROJECT"
           test -s "$PROJECT/research/sources.jsonl"
           test -s "$PROJECT/research/chunks.jsonl"
