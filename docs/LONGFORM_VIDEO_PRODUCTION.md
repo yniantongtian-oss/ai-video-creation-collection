@@ -2,7 +2,7 @@
 
 This guide covers hour-plus documentaries, explainers, courses, historical narratives, investigative pieces, feature commentary, and other multi-chapter productions.
 
-Long-form video should not be produced as one giant short-video prompt. The recommended approach is: **research by chapter, write by chapter, narrate by chapter, render by chapter, then assemble the final program**.
+Long-form video should not be produced as one oversized short-video instruction. The recommended approach is: **research by chapter, write by chapter, narrate by chapter, render by chapter, then assemble the final program**.
 
 ## 1. Why chapter-based production is required
 
@@ -576,26 +576,12 @@ Before release, verify at minimum:
 17. The opening, middle, ending, and chapter boundaries are spot-checked.
 18. Platform and commercial-use rules are reviewed before upload.
 
-## 22. Example Codex instruction
+## 22. End-to-end production sequence
 
-```text
-Load skills/longform-documentary-producer.
+1. Initialize the long-form project and ingest authorized source material with file hashes and source locations.
+2. Verify important factual claims and divide the work into independently reproducible chapters.
+3. Build approved media and rights manifests before chapter rendering.
+4. Generate narration and captions by chapter, validate the result, and rerender only failed chapters.
+5. Assemble the final program and verify timestamps, subtitles, attribution, and the render manifest.
 
-Produce a 90-minute 16:9 documentary about <topic>.
-Create the project first and ingest everything in research/inbox into a corpus that preserves
-SHA-256 hashes, page numbers, and slide references. Summarize each source, design a roughly
-13-chapter outline, then retrieve, write, and build a shot plan for each chapter separately.
-Important factual claims must retain source markers. Write NEEDS_SOURCE when evidence is
-insufficient instead of guessing.
-
-Find images, video, and audio from Wikimedia Commons, Openverse, Pexels, Pixabay, and user-owned
-sources. Automatically downloaded media is candidate-only until its content, source page, and
-license are reviewed and selected=true is explicitly approved. Unknown or restricted assets
-must not enter the final program.
-
-After review, generate narration and subtitles by chapter, match approved media, and render each
-chapter independently. If one chapter fails, rerun only that chapter. Assemble the final MP4 and
-deliver full.srt, chapter timestamps, chapter metadata, scripts, shot plans, factual-claim records,
-the media-rights manifest, and assembly-report.json. Do not claim the final program exists unless
-the final MP4 was actually generated.
-```
+Delivery must be backed by generated files and validation records rather than assumed production success.
