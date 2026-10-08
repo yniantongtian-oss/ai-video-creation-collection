@@ -86,7 +86,7 @@ Do not generalize one successful run to all resolutions, frame counts, and workf
 
 ## Video flicker
 
-Possible causes include unstable frame detail, time-varying prompts or controls, frame-by-frame post-processing, or conflicting subject/camera motion.
+Possible causes include unstable frame detail, time-varying instructions or controls, frame-by-frame post-processing, or conflicting subject/camera motion.
 
 Try shorter shots, smaller motion, stable identity/wardrobe/lighting/background anchors, separate tests for generation/upscaling/interpolation, reduced per-frame randomness, and model-supported consistency or keyframe controls.
 
