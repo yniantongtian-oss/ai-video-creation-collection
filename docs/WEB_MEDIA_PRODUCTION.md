@@ -1,4 +1,4 @@
-# Codex Web Research and Automated Media Production
+# Web Research and Automated Media Production
 
 This repository supports an end-to-end workflow:
 
@@ -305,20 +305,11 @@ tools/web-media/apps/VideoLingo
 
 Use it for transcription, translation, terminology consistency, dubbing, and localization of authorized video.
 
-## 9. Example Codex instruction
+## 9. Example production sequence
 
-```text
-Load skills/web-media-producer.
-Produce a 90-second vertical explainer about how space-based solar power works.
-Create the project first and research official documentation and reliable sources.
-Download only public-domain, Creative Commons, Pexels, Pixabay, or user-authorized media.
-Record every asset in assets.jsonl and pass the rights gate before final rendering.
-Write an original script and shot-by-shot storyboard, then generate narration, subtitles,
-and background music. Prefer MoneyPrinterTurbo for the base cut and use ai-video-editing
-for pacing review and refinement. Deliver MP4, SRT, script, storyboard, source manifest,
-and attribution manifest. Do not overwrite originals, print API keys, or bypass DRM,
-authentication, or paywalls.
-```
+For a short educational video, gather authoritative source material, save full provenance for approved media, draft an original script, prepare a shot-by-shot storyboard, and verify factual claims. Record the license, authorization status, and attribution requirements of each asset before rendering.
+
+Produce narration, captions, and a rough edit using available tools. Review pacing, information accuracy, output quality, and media rights. Deliver the final video alongside source, attribution, and project manifests.
 
 ## 10. Capability boundaries
 
