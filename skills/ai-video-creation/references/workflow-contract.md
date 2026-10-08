@@ -1,6 +1,6 @@
 # Standard Workflow Delivery Contract
 
-An AI-video plan should be executable by another person, not just a model name and a prompt.
+An AI-video plan should be executable by another person, not just a model name and an unspecific task.
 
 ## 1. Requirements summary
 
@@ -69,7 +69,7 @@ Recommended fields:
 
 Across shots, check identity, wardrobe, product structure, lighting direction, palette, screen direction, and motion continuity.
 
-## 5. Prompt pack
+## 5. Visual direction sheet
 
 ### Global anchors
 
@@ -83,7 +83,7 @@ Color and lighting:
 Lens/camera character:
 ```
 
-### Shot-level prompt
+### Shot-level specification
 
 ```text
 [Subject] performs [action] in [scene].
@@ -160,7 +160,7 @@ Record at least:
 
 - Aspect ratio, resolution, frame rate, codec, and file format are correct.
 - Subtitles avoid conflicts with platform UI safe areas.
-- Project files, prompts, seeds, and license records are preserved.
+- Project files, visual direction records, seeds, and license records are preserved.
 
 ## 9. Fallbacks
 
