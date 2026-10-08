@@ -335,7 +335,7 @@ python -m py_compile scripts/*.py skills/moneyprinterturbo-video/mpt_agent.py
 
 ## Maintenance principles
 
-- **Split long-form work into chapters:** do not rely on one huge prompt or one-shot rendering.
+- **Split long-form work into chapters:** do not rely on one oversized request or a single rendering pass.
 - **Keep sources traceable:** preserve source markers and write `NEEDS_SOURCE` when evidence is insufficient.
 - **Review assets before use:** automatic downloads are candidates, never automatically approved final media.
 - **Prefer clear licensing:** prioritize public-domain, Creative Commons, platform-licensed, and user-owned material.
