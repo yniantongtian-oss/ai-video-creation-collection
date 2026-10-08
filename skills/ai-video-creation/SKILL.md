@@ -131,7 +131,7 @@ Then complete:
 
 - `brief.md`: goals, audience, style, constraints, and acceptance criteria;
 - `shots.csv`: duration, visual content, motion, inputs, model, seed, and status per shot;
-- `prompts.md`: positive prompts, negative constraints, identity anchors, and per-shot prompts;
+- `visual-direction.md`: visual direction, negative constraints, identity anchors, and per-shot prompts;
 - `manifest.json`: project parameters and reproducibility information.
 
 ## Step 6: Output the plan
