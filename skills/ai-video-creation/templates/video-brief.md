@@ -91,7 +91,7 @@
 - [ ] No unacceptable flicker, ghosting, deformation, or unreadable text.
 - [ ] Duration, aspect ratio, resolution, frame rate, and codec are correct.
 - [ ] Audio, subtitles, and visuals are synchronized.
-- [ ] Model, version, seed, prompts, and input assets are traceable.
+- [ ] Model, version, seed, visual direction records, and input assets are traceable.
 - [ ] Licensing conditions for code, weights, media, and output are verified.
 
 ## Risks and open questions
