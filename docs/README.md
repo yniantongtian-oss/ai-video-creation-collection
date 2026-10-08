@@ -6,7 +6,7 @@
 
 ## Web research and automated production
 
-- [`WEB_MEDIA_PRODUCTION.md`](WEB_MEDIA_PRODUCTION.md): Codex web research, open-media search, authorized-link downloads, asset manifests, scripting, storyboards, and final production.
+- [`WEB_MEDIA_PRODUCTION.md`](WEB_MEDIA_PRODUCTION.md): web research, open-media search, authorized-link downloads, asset manifests, scripting, storyboards, and final production.
 - [`WEB_MEDIA_APP_SETUP.md`](WEB_MEDIA_APP_SETUP.md): pinned-source installation, dependency setup, and launch instructions for MoneyPrinterTurbo, NarratoAI, and VideoLingo.
 
 ## Video generation and editing
