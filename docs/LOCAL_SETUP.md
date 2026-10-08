@@ -71,7 +71,7 @@ Example request after loading the Skill:
 ```text
 Create an AI-video production plan for a 30-second 9:16 product promo.
 I have six product images and a local ComfyUI setup with 16 GB of VRAM.
-Start with a shot list, candidate models, a minimal validation plan, and a prompt pack.
+Start with a shot list, candidate models, a minimal validation plan, and a visual direction sheet.
 Do not assume that video has already been generated.
 ```
 
