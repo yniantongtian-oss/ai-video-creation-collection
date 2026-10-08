@@ -53,7 +53,7 @@ Generated files include:
 
 - `brief.md`: requirements, technical environment, acceptance criteria, and risks.
 - `shots.csv`: a shot list automatically split by planned shot duration.
-- `prompts.md`: global anchors, negative constraints, and shot prompt templates.
+- `visual-direction.md`: global anchors, negative constraints, and shot specifications.
 - `manifest.json`: project specification and reproducibility metadata.
 
 ## 4. Install the Agent Skill
@@ -112,7 +112,7 @@ my-video-project/
 ├── workflows/
 ├── brief.md
 ├── manifest.json
-├── prompts.md
+├── visual-direction.md
 └── shots.csv
 ```
 
