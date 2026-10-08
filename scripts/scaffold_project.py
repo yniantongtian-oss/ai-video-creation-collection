@@ -135,7 +135,7 @@ def write_brief(path: Path, args: argparse.Namespace) -> None:
 - Subject and camera motion are continuous without obvious jumps.
 - No severe flicker, ghosting, structural deformation, or unacceptable text artifacts.
 - Frame rate, duration, aspect ratio, subtitles, and audio meet the delivery specification.
-- Model, seed, prompts, input assets, and post-processing steps are traceable.
+- Model, seed, visual specifications, input assets, and post-processing steps are traceable.
 
 ## 7. Risks and open questions
 
@@ -146,8 +146,8 @@ def write_brief(path: Path, args: argparse.Namespace) -> None:
     path.write_text(content, encoding="utf-8")
 
 
-def write_prompts(path: Path, args: argparse.Namespace) -> None:
-    content = f"""# {args.name} — Prompt Pack
+def write_visual_direction(path: Path, args: argparse.Namespace) -> None:
+    content = f"""# {args.name} — Visual Direction
 
 ## Global visual anchors
 
@@ -178,7 +178,7 @@ Avoid identity drift, extra limbs, structural deformation, unreadable text,
 over-sharpening, severe flicker, camera teleportation, and abrupt background changes.
 ```
 
-## Shot prompts
+## Shot specifications
 
 ### S001
 
@@ -282,7 +282,7 @@ def main() -> int:
 
     write_brief(project_dir / "brief.md", args)
     write_manifest(project_dir / "manifest.json", args, shots)
-    write_prompts(project_dir / "prompts.md", args)
+    write_visual_direction(project_dir / "visual-direction.md", args)
     write_shots(project_dir / "shots.csv", shots)
 
     print(f"Created project: {project_dir}")
