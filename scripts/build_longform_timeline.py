@@ -5,7 +5,7 @@ from __future__ import annotations
 
 import argparse
 import json
-import os
+import math
 import re
 import subprocess
 import sys
@@ -39,14 +39,21 @@ def read_jsonl(path: Path) -> list[dict[str, Any]]:
             item = json.loads(line)
         except json.JSONDecodeError as exc:
             raise LongformError(f"invalid JSONL at {path}:{number}: {exc}") from exc
-        if isinstance(item, dict):
-            values.append(item)
+        if not isinstance(item, dict):
+            raise LongformError(f"JSONL entry at {path}:{number} must be an object")
+        values.append(item)
     return values
 
 
 def lexical_terms(text: str) -> set[str]:
     lowered = text.lower()
-    terms = {token for token in re.findall(r"[a-z0-9][a-z0-9_-]{1,}", lowered)}
+    terms: set[str] = set()
+    for token in re.findall(r"[a-z0-9]+(?:[_-][a-z0-9]+)*", lowered):
+        if len(token) >= 2:
+            terms.add(token)
+        parts = [part for part in re.split(r"[_-]+", token) if len(part) >= 2]
+        if len(parts) > 1:
+            terms.update(parts)
     for sequence in re.findall(r"[\u4e00-\u9fff]{2,}", text):
         if len(sequence) <= 8:
             terms.add(sequence)
@@ -181,13 +188,34 @@ def choose_asset(
     return ranked[0] if ranked else None
 
 
+def shot_weight(shot: dict[str, Any]) -> float:
+    """Return a positive relative weight for one planned shot."""
+    raw = shot.get("duration_seconds", None)
+    if raw is None or raw == "":
+        return 1.0
+    if isinstance(raw, bool):
+        raise LongformError(f"shot duration_seconds must be a number, got {raw!r}")
+    try:
+        value = float(raw)
+    except (TypeError, ValueError) as exc:
+        raise LongformError(f"shot duration_seconds must be a number, got {raw!r}") from exc
+    if not math.isfinite(value):
+        raise LongformError(f"shot duration_seconds must be a finite number, got {raw!r}")
+    if value <= 0:
+        return 1.0
+    return value
+
+
 def scale_durations(shots: list[dict[str, Any]], total_seconds: float) -> list[float]:
-    values = [max(1.0, float(shot.get("duration_seconds") or 1.0)) for shot in shots]
+    if isinstance(total_seconds, bool) or not isinstance(total_seconds, (int, float)):
+        raise LongformError("timeline duration must be a positive number")
+    if not math.isfinite(total_seconds) or total_seconds <= 0:
+        raise LongformError("timeline duration must be a positive number")
+    values = [shot_weight(shot) for shot in shots]
     current = sum(values) or 1.0
     scaled = [value * total_seconds / current for value in values]
-    difference = total_seconds - sum(scaled)
     if scaled:
-        scaled[-1] += difference
+        scaled[-1] += total_seconds - sum(scaled)
     return scaled
 
 
@@ -203,7 +231,10 @@ def build_chapter_timeline(
     chapter = project / "chapters" / chapter_id
     shots_path = chapter / "shots.json"
     shots = read_json(shots_path)
-    if not isinstance(shots, list) or not shots:
+    if not isinstance(shots, list):
+        raise LongformError(f"chapter {chapter_id} has no shot plan")
+    shot_rows = [shot for shot in shots if isinstance(shot, dict)]
+    if not shot_rows:
         raise LongformError(f"chapter {chapter_id} has no shot plan")
     audio = chapter / "audio" / "narration.mp3"
     if not audio.is_file():
@@ -211,7 +242,7 @@ def build_chapter_timeline(
             f"chapter {chapter_id} has no narration audio; run render_longform_narration.py"
         )
     total_seconds = probe_duration(audio)
-    durations = scale_durations(shots, total_seconds)
+    durations = scale_durations(shot_rows, total_seconds)
     unique_assets = {str(item.get("id") or "") for item in assets}
     if len(unique_assets) < minimum_assets and not allow_placeholders:
         raise LongformError(
@@ -224,9 +255,7 @@ def build_chapter_timeline(
     timeline: list[dict[str, Any]] = []
     cursor = 0.0
     missing = 0
-    for index, shot in enumerate(shots):
-        if not isinstance(shot, dict):
-            continue
+    for index, shot in enumerate(shot_rows):
         asset = choose_asset(assets, shot, chapter_id, usage, recent)
         if asset is None:
             if not allow_placeholders:

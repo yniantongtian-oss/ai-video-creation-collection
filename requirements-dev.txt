@@ -1,0 +1,2 @@
+# Test-only dependencies. Pipeline scripts stay on the Python standard library.
+pytest==8.4.2

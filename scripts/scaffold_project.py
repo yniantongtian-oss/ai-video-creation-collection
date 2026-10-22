@@ -17,6 +17,10 @@ from pathlib import Path
 ALLOWED_MODES = ("t2v", "i2v", "v2v", "continuation", "mixed")
 ASPECT_PATTERN = re.compile(r"^[1-9]\d*:[1-9]\d*$")
 INVALID_PATH_CHARS = re.compile(r"[\\/:*?\"<>|]+")
+WINDOWS_DEVICE = re.compile(
+    r"^(CON|PRN|AUX|NUL|COM[1-9]|LPT[1-9])(?:\..*)?$",
+    re.IGNORECASE,
+)
 
 
 def positive_float(value: str) -> float:
@@ -50,24 +54,31 @@ def safe_directory_name(value: str) -> str:
     normalized = INVALID_PATH_CHARS.sub("-", normalized)
     normalized = re.sub(r"\s+", "-", normalized)
     normalized = normalized.strip("-. ")
+    normalized = normalized[:100].strip("-. ")
     if not normalized or normalized in {".", ".."}:
         raise ValueError("project name does not contain a usable directory name")
-    return normalized[:100]
+    if WINDOWS_DEVICE.fullmatch(normalized):
+        raise ValueError("project name is reserved on Windows")
+    return normalized
 
 
 def build_shots(duration: float, shot_length: float, mode: str) -> list[dict[str, object]]:
-    shot_count = max(1, math.ceil(duration / shot_length))
+    if duration <= 0 or shot_length <= 0:
+        raise ValueError("duration and shot length must be greater than zero")
     shots: list[dict[str, object]] = []
     elapsed = 0.0
-
-    for index in range(shot_count):
-        remaining = max(0.0, duration - elapsed)
-        current_duration = min(shot_length, remaining) if remaining else shot_length
+    index = 0
+    # Compare at millisecond resolution. Dividing binary floats and then
+    # calling math.ceil can invent an extra shot (for example 0.3 / 0.1).
+    while round(duration - elapsed, 3) > 0:
+        current_duration = round(min(shot_length, duration - elapsed), 3)
+        if current_duration <= 0:
+            break
         shots.append(
             {
                 "shot_id": f"S{index + 1:03d}",
                 "start_sec": round(elapsed, 3),
-                "duration_sec": round(current_duration, 3),
+                "duration_sec": current_duration,
                 "mode": mode,
                 "visual": "",
                 "action": "",
@@ -79,8 +90,28 @@ def build_shots(duration: float, shot_length: float, mode: str) -> list[dict[str
                 "notes": "",
             }
         )
-        elapsed += current_duration
-
+        elapsed = round(elapsed + current_duration, 3)
+        index += 1
+        if index > 100_000:
+            raise ValueError("shot plan exceeded the safety limit")
+    if not shots:
+        current_duration = round(duration, 3) or duration
+        shots.append(
+            {
+                "shot_id": "S001",
+                "start_sec": 0.0,
+                "duration_sec": current_duration,
+                "mode": mode,
+                "visual": "",
+                "action": "",
+                "camera": "",
+                "input_asset": "",
+                "model": "",
+                "seed": "",
+                "status": "planned",
+                "notes": "",
+            }
+        )
     return shots
 
 

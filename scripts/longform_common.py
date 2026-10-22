@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import json
+import math
 import os
 import re
 import shutil
@@ -59,17 +60,44 @@ def reexec_in_runtime(required_module: str) -> None:
     raise SystemExit(result.returncode)
 
 
+def parse_dotenv_assignment(line: str) -> tuple[str, str] | None:
+    """Parse one dotenv line.
+
+    Blank lines and comments are ignored. A leading ``export`` is accepted.
+    Matching single or double quotes are removed, and an unquoted `` #``
+    comment is removed. Existing environment variables are left untouched by
+    :func:`load_dotenv`.
+    """
+    stripped = line.strip()
+    if not stripped or stripped.startswith("#"):
+        return None
+    if stripped.startswith("export "):
+        stripped = stripped[len("export ") :].strip()
+        if not stripped or stripped.startswith("#"):
+            return None
+    if "=" not in stripped:
+        return None
+    key, raw_value = stripped.split("=", 1)
+    key = key.strip()
+    if not key:
+        return None
+    value = raw_value.strip()
+    if len(value) >= 2 and value[0] == value[-1] and value[0] in {'"', "'"}:
+        value = value[1:-1]
+    else:
+        value = re.split(r"\s+#", value, maxsplit=1)[0].rstrip()
+    return key, value
+
+
 def load_dotenv(path: Path = LONGFORM_ENV) -> None:
     if not path.is_file():
         return
-    for raw_line in path.read_text(encoding="utf-8").splitlines():
-        line = raw_line.strip()
-        if not line or line.startswith("#") or "=" not in line:
+    for raw_line in path.read_text(encoding="utf-8-sig").splitlines():
+        parsed = parse_dotenv_assignment(raw_line)
+        if parsed is None:
             continue
-        key, value = line.split("=", 1)
-        key = key.strip()
-        value = value.strip().strip('"').strip("'")
-        if key and key not in os.environ:
+        key, value = parsed
+        if key not in os.environ:
             os.environ[key] = value
 
 
@@ -88,9 +116,12 @@ def env_float(name: str, default: float) -> float:
     if not value:
         return default
     try:
-        return float(value)
+        number = float(value)
     except ValueError as exc:
         raise LongformError(f"{name} must be a number") from exc
+    if not math.isfinite(number):
+        raise LongformError(f"{name} must be a finite number")
+    return number
 
 
 def read_json(path: Path) -> Any:
@@ -155,7 +186,10 @@ def update_chapter_stage(
         stages = {}
         payload["stages"] = stages
     stages[stage] = state
-    payload["state"] = "failed" if state == "failed" else payload.get("state", "running")
+    if state in {"failed", "completed", "review-required"}:
+        payload["state"] = state
+    else:
+        payload["state"] = payload.get("state", "running")
     payload["updated_at"] = datetime.now(timezone.utc).isoformat()
     if details:
         stage_details = payload.setdefault("details", {})
@@ -227,6 +261,15 @@ def run_command(
     return result
 
 
+def parse_ffmpeg_duration(output: str) -> float | None:
+    """Return seconds from an ffmpeg banner, or None when no duration is present."""
+    match = re.search(r"Duration:\s*(\d+):(\d+):(\d+(?:\.\d+)?)", output)
+    if not match:
+        return None
+    hours, minutes, seconds = match.groups()
+    return int(hours) * 3600 + int(minutes) * 60 + float(seconds)
+
+
 def probe_duration(media: Path) -> float:
     ffmpeg = get_ffmpeg()
     result = subprocess.run(
@@ -238,8 +281,7 @@ def probe_duration(media: Path) -> float:
         check=False,
     )
     output = (result.stdout or "") + (result.stderr or "")
-    match = re.search(r"Duration:\s*(\d+):(\d+):(\d+(?:\.\d+)?)", output)
-    if not match:
+    duration = parse_ffmpeg_duration(output)
+    if duration is None:
         raise LongformError(f"unable to determine media duration: {media}")
-    hours, minutes, seconds = match.groups()
-    return int(hours) * 3600 + int(minutes) * 60 + float(seconds)
+    return duration

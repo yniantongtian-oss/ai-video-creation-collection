@@ -13,6 +13,7 @@
 
 - [`VIDEO_EDITING_SETUP.md`](VIDEO_EDITING_SETUP.md): Auto-Editor installation, silence/motion/transcript rough cuts, effects, and professional timeline export.
 - [`LOCAL_SETUP.md`](LOCAL_SETUP.md): local AI video generation and ComfyUI environment preparation.
+- [`../catalog/projects.json`](../catalog/projects.json): open video models and tools reviewed on 2026-10-22. `scripts/run_pipeline.py` chains the existing scripts from one spec; `--dry-run` prints the plan.
 
 ## Recommended paths
 

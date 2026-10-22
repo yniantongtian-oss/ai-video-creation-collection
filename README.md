@@ -21,6 +21,7 @@ This repository organizes research, asset discovery, script writing, storyboardi
 - Create subtitles, translations, and multilingual dubbing with VideoLingo.
 - Use Auto-Editor for silence, motion, transcript-based rough cuts, and professional timeline export.
 - Use Wan2.2 ComfyUI workflows to generate missing AI shots.
+- Choose an open video route from the reviewed project catalog: Wan2.1, Wan2.2, LTX-Video, LTX-2, HunyuanVideo, CogVideo, FramePack, Mochi, MAGI-1, LongCat-Video, or SkyReels-V2.
 
 ## 90-minute production quick start
 
@@ -291,6 +292,44 @@ python scripts/download_workflow_models.py \
   --dry-run
 ```
 
+## Open video-generation routes
+
+`catalog/projects.json` was reviewed on 2026-10-22. Entries are official repositories with a visible license. The catalog does not rank models and does not promise VRAM, resolution, or clip length. Measure those on a short sample and read the weight license before use.
+
+| Route | Code license on GitHub | Use when |
+|---|---|---|
+| Wan2.2 and Wan2.1 | Apache-2.0 | Open text-to-video, image-to-video, and Wan2.1 text rendering. Wan2.1 and Wan2.2 are separate repositories. |
+| LTX-Video | Apache-2.0 | The earlier LTX-Video line, including keyframes and extension. |
+| LTX-2 | Community license | Official audio-video generation, Python inference, or the upstream LoRA trainer. LTX-2 and LTX-2.x licenses differ by release. |
+| HunyuanVideo-1.5 | Tencent community license | The lighter official Hunyuan route. The license does not apply in the EU, the UK, or South Korea. |
+| CogVideo and Mochi | Apache-2.0 | CogVideo pipelines, or Mochi when an official fine-tuning path is part of the job. |
+| FramePack | Apache-2.0 | Progressive next-frame generation for longer image-to-video clips. |
+| MAGI-1 | Apache-2.0 | Autoregressive generation or continuation. |
+| LongCat-Video | MIT | Official long-clip code. Confirm each weight file's terms before commercial use. |
+| SkyReels-V2 | Custom terms | Official longer film-style checkpoints. Read `LICENSE.txt` before use. |
+
+Models that publish weights without a repository license are omitted until the terms are explicit.
+
+## Run a pipeline from one spec
+
+`scripts/run_pipeline.py` chains the existing scripts. `--dry-run` prints the plan and does not scaffold a project, download media, call a model, or render video.
+
+```bash
+python scripts/run_pipeline.py \
+  --spec config/pipeline-spec.example.json \
+  --dry-run
+```
+
+Long-form stages run in this order:
+
+```text
+scaffold → ingest → research → assets → narration → timeline → render → assemble
+```
+
+Asset review is unchanged. Search results stay unselected, and timeline construction still rejects a chapter that does not have enough approved assets. Narration, rendering, and assembly need the local long-form runtime.
+
+The same command scaffolds a short generation project or a web-media project when the spec sets `"pipeline"` to `generation` or `web-media`.
+
 ## Skills
 
 ```text
@@ -320,6 +359,7 @@ scripts/render_longform_chapters.py      per-chapter rendering
 scripts/assemble_longform_video.py       final assembly and chapter metadata
 scripts/longform_preflight.py            environment, disk, and quality preflight
 scripts/run_longform_project.py          top-level controller
+scripts/run_pipeline.py                  chain scripts from one project spec
 ```
 
 ## Validate the repository
@@ -331,6 +371,9 @@ python scripts/validate_workflows.py
 python -m json.tool tools/web-media-stack.lock.json >/dev/null
 python -m json.tool tools/longform-stack.lock.json >/dev/null
 python -m py_compile scripts/*.py skills/moneyprinterturbo-video/mpt_agent.py
+python -m pip install -r requirements-dev.txt
+python -m pytest
+python scripts/run_pipeline.py --spec config/pipeline-spec.example.json --dry-run
 ```
 
 ## Maintenance principles
