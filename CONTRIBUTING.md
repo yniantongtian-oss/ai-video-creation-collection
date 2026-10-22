@@ -88,6 +88,8 @@ python scripts/materialize_workflows.py
 python scripts/validate_catalog.py
 python scripts/validate_workflows.py
 python -m py_compile scripts/*.py
+python -m pip install -r requirements-dev.txt
+python -m pytest
 
 # Optional: create a temporary project to verify the scaffolding
 python scripts/scaffold_project.py \

@@ -44,6 +44,15 @@ jobs:
           python -m py_compile scripts/*.py
           python -m py_compile skills/moneyprinterturbo-video/mpt_agent.py
 
+      - name: Install test dependencies
+        run: python -m pip install -r requirements-dev.txt
+
+      - name: Run unit tests
+        run: python -m pytest
+
+      - name: Dry-run the pipeline orchestrator
+        run: python scripts/run_pipeline.py --spec config/pipeline-spec.example.json --dry-run
+
       - name: Dry-run pinned installers
         run: |
           python scripts/install_web_media_stack.py --profile full --dry-run
@@ -66,6 +75,7 @@ jobs:
           python scripts/assemble_longform_video.py --help >/dev/null
           python scripts/longform_preflight.py --help >/dev/null
           python scripts/run_longform_project.py --help >/dev/null
+          python scripts/run_pipeline.py --help >/dev/null
 
       - name: Smoke-test video generation project scaffolder
         run: |

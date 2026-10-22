@@ -1,0 +1,10 @@
+[project]
+name = "ai-video-creation-collection"
+version = "0.0.0"
+description = "Executable workflows for long-form video, open media, and AI video generation."
+readme = "README.md"
+requires-python = ">=3.10"
+
+[tool.pytest.ini_options]
+pythonpath = ["scripts"]
+testpaths = ["tests"]

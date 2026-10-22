@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0.0",
-  "last_reviewed": "2026-09-25",
+  "last_reviewed": "2026-10-22",
   "projects": [
     {
       "id": "comfyui",
@@ -25,15 +25,37 @@
       "notes": "Verify the current model list, weight licenses, and hardware requirements before deployment."
     },
     {
+      "id": "wan2-1",
+      "name": "Wan2.1",
+      "category": "video-model",
+      "repository": "https://github.com/Wan-Video/Wan2.1",
+      "official": true,
+      "license": "Apache-2.0; model terms may differ",
+      "capabilities": ["text-to-video", "image-to-video", "video-editing", "text-rendering"],
+      "when_to_use": "Use when an official Wan2.1 checkpoint, including its consumer-GPU or text-rendering routes, fits better than Wan2.2.",
+      "notes": "Wan2.2 lives in a separate repository. Verify the selected checkpoint, weight license, and hardware on a short sample."
+    },
+    {
       "id": "ltx-video",
-      "name": "LTX-Video / LTX-2",
+      "name": "LTX-Video",
       "category": "video-model",
       "repository": "https://github.com/Lightricks/LTX-Video",
       "official": true,
       "license": "Apache-2.0; model terms may differ",
-      "capabilities": ["text-to-video", "image-to-video", "video-extension", "keyframes", "audio-video"],
-      "when_to_use": "Use for video generation, keyframes, extension, or audio-video capabilities currently supported upstream.",
-      "notes": "Capabilities change upstream; check the current README and model cards before use."
+      "capabilities": ["text-to-video", "image-to-video", "video-extension", "keyframes"],
+      "when_to_use": "Use for the Apache-2.0 LTX-Video line, including keyframes and extension documented in this repository.",
+      "notes": "Audio-video models from LTX-2 onward are published in Lightricks/LTX-2 under separate community licenses. Confirm which repository and license apply before use."
+    },
+    {
+      "id": "ltx-2",
+      "name": "LTX-2",
+      "category": "video-model",
+      "repository": "https://github.com/Lightricks/LTX-2",
+      "official": true,
+      "license": "See upstream LICENSE and model terms",
+      "capabilities": ["text-to-video", "image-to-video", "audio-video", "lora-training"],
+      "when_to_use": "Use when the project needs the official LTX-2 audio-video model, its Python inference package, or the upstream LoRA trainer.",
+      "notes": "LTX-2 and later LTX-2.x releases use community licenses that differ by release line. Read the license that matches the weights before commercial use. Treat duration, resolution, and VRAM as environment-dependent."
     },
     {
       "id": "hunyuanvideo",
@@ -55,7 +77,7 @@
       "license": "See upstream LICENSE and model terms",
       "capabilities": ["text-to-video", "image-to-video"],
       "when_to_use": "Use when the lighter official HunyuanVideo route is appropriate.",
-      "notes": "Do not guarantee VRAM use or generation speed in an untested environment."
+      "notes": "The Tencent Hunyuan community license does not apply in the European Union, the United Kingdom, or South Korea. Read the current license before use, and measure hardware on a short sample instead of trusting an untested speed or VRAM figure."
     },
     {
       "id": "cogvideo",
@@ -63,10 +85,65 @@
       "category": "video-model",
       "repository": "https://github.com/THUDM/CogVideo",
       "official": true,
-      "license": "See upstream LICENSE and model terms",
+      "license": "Apache-2.0; model terms may differ",
       "capabilities": ["text-to-video", "image-to-video", "diffusers"],
       "when_to_use": "Use for CogVideo models, scripted inference, or Diffusers integration.",
       "notes": "Verify input formats, licensing, and dependencies for the selected model."
+    },
+    {
+      "id": "framepack",
+      "name": "FramePack",
+      "category": "video-model",
+      "repository": "https://github.com/lllyasviel/FramePack",
+      "official": true,
+      "license": "Apache-2.0",
+      "capabilities": ["image-to-video", "text-to-video", "next-frame", "long-clip"],
+      "when_to_use": "Use for progressive next-frame video generation when clip length would make a one-shot sampler impractical.",
+      "notes": "Official implementation of FramePack. The upstream design keeps the sampling context at a constant length as a clip grows. Measure memory and duration on the target GPU."
+    },
+    {
+      "id": "mochi",
+      "name": "Mochi",
+      "category": "video-model",
+      "repository": "https://github.com/genmoai/mochi",
+      "official": true,
+      "license": "Apache-2.0",
+      "capabilities": ["text-to-video", "fine-tuning"],
+      "when_to_use": "Use when an Apache-2.0 text-to-video model with an official fine-tuning path matters more than the newest short-clip checkpoint.",
+      "notes": "Confirm that the downloaded weights use the same terms as the repository license and that the trainer matches those weights."
+    },
+    {
+      "id": "skyreels-v2",
+      "name": "SkyReels-V2",
+      "category": "video-model",
+      "repository": "https://github.com/SkyworkAI/SkyReels-V2",
+      "official": true,
+      "license": "See upstream LICENSE and model terms",
+      "capabilities": ["text-to-video", "image-to-video", "long-clip"],
+      "when_to_use": "Use when an official SkyReels-V2 checkpoint for longer film-style generation fits the shot.",
+      "notes": "The repository uses custom terms rather than a standard OSI license. Read LICENSE.txt before commercial use or redistribution, and confirm weight terms separately."
+    },
+    {
+      "id": "longcat-video",
+      "name": "LongCat-Video",
+      "category": "video-model",
+      "repository": "https://github.com/meituan-longcat/LongCat-Video",
+      "official": true,
+      "license": "MIT",
+      "capabilities": ["text-to-video", "image-to-video", "long-clip"],
+      "when_to_use": "Use when the official LongCat-Video long-clip checkpoints fit and the MIT code license is acceptable.",
+      "notes": "The same repository documents an avatar line with its own weights. Confirm that each downloaded weight file uses terms you can accept before commercial use."
+    },
+    {
+      "id": "magi-1",
+      "name": "MAGI-1",
+      "category": "video-model",
+      "repository": "https://github.com/SandAI-org/MAGI-1",
+      "official": true,
+      "license": "Apache-2.0",
+      "capabilities": ["text-to-video", "image-to-video", "autoregressive", "video-continuation"],
+      "when_to_use": "Use when autoregressive generation or continuation from the official MAGI-1 release fits the shot.",
+      "notes": "Apache-2.0 covers the repository code. Confirm weight terms, context length, and hardware on a short sample."
     },
     {
       "id": "open-sora",
@@ -74,7 +151,7 @@
       "category": "research-framework",
       "repository": "https://github.com/hpcaitech/Open-Sora",
       "official": true,
-      "license": "See upstream LICENSE and model terms",
+      "license": "Apache-2.0; model terms may differ",
       "capabilities": ["training", "inference", "research", "distributed"],
       "when_to_use": "Use for research, training, evaluation, or a custom full video-generation pipeline.",
       "notes": "Best suited to research and engineering rather than the lowest-friction local creation workflow."

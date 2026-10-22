@@ -11,6 +11,7 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
+from urllib.parse import urlparse
 
 DEFAULT_ALLOWED = {
     "public-domain",
@@ -80,6 +81,13 @@ def resolve_local_file(manifest: Path, value: str) -> Path:
     return candidate
 
 
+def is_https_url(value: object) -> bool:
+    if not isinstance(value, str):
+        return False
+    parsed = urlparse(value.strip())
+    return parsed.scheme.lower() == "https" and bool(parsed.netloc)
+
+
 def validate_selectable(item: dict[str, Any], manifest: Path, allowed: set[str]) -> None:
     asset_id = str(item.get("id") or "")
     rights = str(item.get("rights_status") or "unknown")
@@ -89,14 +97,14 @@ def validate_selectable(item: dict[str, Any], manifest: Path, allowed: set[str])
         raise ManifestError(
             f"{asset_id}: rights status {rights!r} is not allowed for selection"
         )
-    if rights != "user-owned" and not source_url.startswith("https://"):
+    if rights != "user-owned" and not is_https_url(source_url):
         raise ManifestError(f"{asset_id}: selected non-local asset requires an HTTPS source_url")
     if not str(item.get("license") or "").strip():
         raise ManifestError(f"{asset_id}: license information is missing")
     if rights in {"cc-by", "cc-by-sa"}:
         if not str(item.get("creator") or "").strip():
             raise ManifestError(f"{asset_id}: attribution license requires creator")
-        if not str(item.get("license_url") or "").startswith("https://"):
+        if not is_https_url(item.get("license_url")):
             raise ManifestError(f"{asset_id}: attribution license requires license_url")
     if rights in {"permission-granted", "user-owned"} and not permission_note:
         raise ManifestError(f"{asset_id}: {rights} requires permission_note")
@@ -108,7 +116,7 @@ def validate_selectable(item: dict[str, Any], manifest: Path, allowed: set[str])
         raise ManifestError(f"{asset_id}: local file is missing: {candidate}")
     recorded_hash = str(item.get("sha256") or "")
     actual_hash = file_sha256(candidate)
-    if recorded_hash and actual_hash != recorded_hash:
+    if recorded_hash and actual_hash.lower() != recorded_hash.lower():
         raise ManifestError(f"{asset_id}: local file SHA-256 does not match manifest")
     if not recorded_hash:
         item["sha256"] = actual_hash
@@ -223,7 +231,7 @@ def validation_errors(
             seen.add(asset_id)
         if bool(item.get("selected", False)):
             try:
-                validate_selectable(item, manifest, allowed)
+                validate_selectable(dict(item), manifest, allowed)
             except ManifestError as exc:
                 errors.append(str(exc))
     return errors

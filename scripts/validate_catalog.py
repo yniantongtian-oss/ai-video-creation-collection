@@ -45,8 +45,10 @@ def fail(message: str) -> None:
 
 
 def validate_repository_url(value: object) -> str | None:
-    if not isinstance(value, str) or not value:
+    if not isinstance(value, str) or not value.strip():
         return "repository must be a non-empty string"
+    if any(character.isspace() for character in value):
+        return "repository URL must not contain whitespace"
 
     parsed = urlparse(value)
     if parsed.scheme != "https" or parsed.netloc.lower() != "github.com":
@@ -58,31 +60,30 @@ def validate_repository_url(value: object) -> str | None:
 
     if parsed.query or parsed.fragment:
         return "repository URL must not contain a query string or fragment"
+    if parts[1].casefold().endswith(".git"):
+        return "repository URL must not use a .git suffix"
 
     return None
 
 
-def main() -> int:
+def canonical_repository(value: str) -> str:
+    """Identity used to detect the same GitHub repository under different spellings."""
+    parsed = urlparse(value.strip())
+    parts = [part for part in parsed.path.split("/") if part]
+    if len(parts) != 2:
+        return value.strip().casefold()
+    owner, name = parts
+    return f"{parsed.netloc.casefold()}/{owner.casefold()}/{name.casefold()}"
+
+
+def collect_errors(data: object) -> list[str]:
     errors: list[str] = []
-
-    try:
-        raw = CATALOG_PATH.read_text(encoding="utf-8")
-    except FileNotFoundError:
-        fail(f"missing catalog: {CATALOG_PATH}")
-        return 1
-
-    try:
-        data = json.loads(raw)
-    except json.JSONDecodeError as exc:
-        fail(f"invalid JSON at line {exc.lineno}, column {exc.colno}: {exc.msg}")
-        return 1
-
     if not isinstance(data, dict):
-        fail("catalog root must be an object")
-        return 1
+        return ["catalog root must be an object"]
 
-    if not isinstance(data.get("schema_version"), str):
-        errors.append("schema_version must be a string")
+    schema_version = data.get("schema_version")
+    if not isinstance(schema_version, str) or not schema_version.strip():
+        errors.append("schema_version must be a non-empty string")
 
     reviewed = data.get("last_reviewed")
     if not isinstance(reviewed, str):
@@ -132,10 +133,12 @@ def main() -> int:
         url_error = validate_repository_url(repository)
         if url_error:
             errors.append(f"{prefix}.repository {url_error}")
-        elif repository in seen_repositories:
-            errors.append(f"{prefix}.repository duplicates {repository!r}")
-        else:
-            seen_repositories.add(repository)
+        elif isinstance(repository, str):
+            identity = canonical_repository(repository)
+            if identity in seen_repositories:
+                errors.append(f"{prefix}.repository duplicates {repository!r}")
+            else:
+                seen_repositories.add(identity)
 
         if not isinstance(project.get("official"), bool):
             errors.append(f"{prefix}.official must be true or false")
@@ -157,13 +160,32 @@ def main() -> int:
         if extra:
             errors.append(f"{prefix} contains unsupported fields: {', '.join(extra)}")
 
+    return errors
+
+
+def main() -> int:
+    try:
+        raw = CATALOG_PATH.read_text(encoding="utf-8")
+    except FileNotFoundError:
+        fail(f"missing catalog: {CATALOG_PATH}")
+        return 1
+
+    try:
+        data = json.loads(raw)
+    except json.JSONDecodeError as exc:
+        fail(f"invalid JSON at line {exc.lineno}, column {exc.colno}: {exc.msg}")
+        return 1
+
+    errors = collect_errors(data)
     if errors:
         for message in errors:
             fail(message)
         print(f"Catalog validation failed with {len(errors)} error(s).", file=sys.stderr)
         return 1
 
-    print(f"Catalog OK: {len(projects)} projects, {len(seen_repositories)} unique repositories.")
+    projects = data["projects"]
+    identities = {canonical_repository(project["repository"]) for project in projects}
+    print(f"Catalog OK: {len(projects)} projects, {len(identities)} unique repositories.")
     return 0
 
 

@@ -1,0 +1,51 @@
+{
+  "schema_version": "",
+  "last_reviewed": "25-09-2026",
+  "projects": [
+    {
+      "id": "Bad_ID",
+      "name": " ",
+      "category": "not-a-category",
+      "repository": "http://github.com/acme/widget",
+      "official": "yes",
+      "license": "",
+      "capabilities": [],
+      "when_to_use": "",
+      "notes": "Present so the notes check is not the failure.",
+      "extra": true
+    },
+    {
+      "id": "sample-one",
+      "name": "Sample One",
+      "category": "video-model",
+      "repository": "https://github.com/Example/Sample",
+      "official": true,
+      "license": "Apache-2.0",
+      "capabilities": ["clip", "clip"],
+      "when_to_use": "Use for the duplicate-capability case.",
+      "notes": "Valid aside from duplicate capabilities."
+    },
+    {
+      "id": "sample-one",
+      "name": "Sample One Again",
+      "category": "video-model",
+      "repository": "https://github.com/example/sample/",
+      "official": true,
+      "license": "Apache-2.0",
+      "capabilities": ["text-to-video"],
+      "when_to_use": "Use for the duplicate id and repository case.",
+      "notes": "Same repository as sample-one with different spelling."
+    },
+    {
+      "id": "sample-two",
+      "name": "Sample Two",
+      "category": "video-model",
+      "repository": "https://github.com/example/sample.git",
+      "official": true,
+      "license": "Apache-2.0",
+      "capabilities": ["text-to-video"],
+      "when_to_use": "Use for the .git suffix case.",
+      "notes": "Repository URLs must point at the repository root."
+    }
+  ]
+}

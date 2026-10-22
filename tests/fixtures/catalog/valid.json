@@ -1,0 +1,17 @@
+{
+  "schema_version": "1.0.0",
+  "last_reviewed": "2026-10-22",
+  "projects": [
+    {
+      "id": "example-model",
+      "name": "Example Model",
+      "category": "video-model",
+      "repository": "https://github.com/example/example-model",
+      "official": true,
+      "license": "Apache-2.0",
+      "capabilities": ["text-to-video"],
+      "when_to_use": "Use this fixture to prove a minimal catalog passes.",
+      "notes": "Synthetic fixture. This is not a real project."
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": "1.0.0",
+  "pipeline": "longform",
+  "name": "example-documentary",
+  "topic": "How a city water system works",
+  "output": "projects",
+  "duration_minutes": 60,
+  "chapter_minutes": 10,
+  "aspect_ratio": "16:9",
+  "language": "en-US",
+  "audience": "General audience"
+}

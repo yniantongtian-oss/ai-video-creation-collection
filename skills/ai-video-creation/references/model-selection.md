@@ -6,12 +6,13 @@ Use this document to choose candidate technical routes. It does not replace upst
 
 | Task | Confirm first | Common routes |
 |---|---|---|
-| Text-to-video | visual control, motion, shot length, text rendering | Wan2.2, LTX, HunyuanVideo, CogVideo |
-| Image-to-video | reference quality, features that must remain stable, camera motion | current official I2V models or ComfyUI workflows |
+| Text-to-video | visual control, motion, shot length, text rendering | Wan2.2, Wan2.1, LTX-2, HunyuanVideo, CogVideo, Mochi, MAGI-1 |
+| Image-to-video | reference quality, features that must remain stable, camera motion | Wan, LTX-2, FramePack, LongCat-Video, SkyReels-V2, or a ComfyUI workflow |
+| Audio and video together | whether the selected weights actually generate audio, and which license applies | LTX-2 |
 | Video-to-video | whether to preserve motion, composition, identity, duration, and audio | V2V or controlled pipelines |
-| Continuation | boundary continuity, drift tolerance, accumulated error | native extension or shot-based generation plus editing |
+| Continuation | boundary continuity, drift tolerance, accumulated error | MAGI-1, FramePack, LongCat-Video, or shot-based generation plus editing |
 | Multi-shot short | script, shot list, character design, sound, subtitles | multiple models plus editing |
-| Research/training | data, compute, distributed setup, evaluation | Open-Sora, Diffusers, or official training code |
+| Research/training | data, compute, distributed setup, evaluation | Open-Sora, Diffusers, Mochi fine-tuning, or official training code |
 | Services/batch | API, queues, caching, retries, logs | Diffusers scripts or ComfyUI API |
 
 ## Candidate routes
@@ -22,29 +23,49 @@ Use when you need node-based construction, reusable workflows, debugging, model/
 
 Verify the ComfyUI version, required custom nodes and versions, model/VAE/text-encoder/LoRA paths, and custom-node source and license.
 
-### Wan2.2
+### Wan2.2 and Wan2.1
 
-Use when official Wan T2V, I2V, or related published capabilities fit the task.
+Use Wan2.2 when its official T2V, I2V, or other published task fits. Use Wan2.1 when its separate checkpoints, including the consumer-GPU and text-rendering routes, fit better.
 
-Verify the current official model/task list, weight license and input requirements, and the current inference or ComfyUI integration path.
+Verify the repository, checkpoint, weight license, and hardware on a short sample. Do not treat Wan2.1 and Wan2.2 as interchangeable files.
 
-### LTX-Video / LTX-2
+### LTX-Video
 
-Use when current upstream video generation, keyframe, extension, or audio-video features are needed.
+Use the Apache-2.0 LTX-Video repository for the earlier LTX-Video line, including keyframes and extension documented there.
 
-Verify the currently recommended model/documentation, whether the required feature belongs to the selected model, and its dependencies, precision, and hardware requirements.
+### LTX-2
+
+Use `Lightricks/LTX-2` when the shot needs official audio-video generation, the Python inference package, or the upstream LoRA trainer.
+
+LTX-2 and later LTX-2.x weights use community licenses that differ by release line. Read the license that matches the weights. This is not the Apache-2.0 LTX-Video repository.
 
 ### HunyuanVideo / HunyuanVideo-1.5
 
-Use when the official HunyuanVideo ecosystem fits the project or when comparing the base and lighter routes.
+Use when the official HunyuanVideo ecosystem fits the project or when the lighter 1.5 route is the one you intend to run.
 
-Verify which repository/version is in use, code and weight terms, regional/commercial conditions, and supported input modes.
+The HunyuanVideo-1.5 community license does not apply in the European Union, the United Kingdom, or South Korea. Confirm the repository, weight terms, and supported input modes before use.
 
 ### CogVideo
 
 Use for CogVideo models or Diffusers/Python pipeline integration.
 
-Verify the exact model branch/card, resolution/frame/input requirements, dependency versions, and license.
+Verify the exact model branch/card, resolution/frame/input requirements, dependency versions, and license. The repository code is Apache-2.0; model weights may use different terms.
+
+### FramePack
+
+Use for progressive next-frame generation when a one-shot sampler is a poor fit for the clip length. The upstream design keeps the packed context at a constant length as the clip grows. Measure memory locally.
+
+### Mochi
+
+Use when an Apache-2.0 text-to-video checkpoint with an official fine-tuning path is the right base. Confirm that the trainer and the weights belong together.
+
+### MAGI-1
+
+Use for official autoregressive generation or continuation. Confirm context length and weight terms on a short sample.
+
+### LongCat-Video and SkyReels-V2
+
+Use LongCat-Video when its official long-clip checkpoints and MIT code license fit. Use SkyReels-V2 when its official longer film-style checkpoints fit. SkyReels-V2 uses custom terms; read `LICENSE.txt` before commercial use. LongCat weight files can differ from the code license, and the repository also documents a separate avatar line.
 
 ### Open-Sora
 
